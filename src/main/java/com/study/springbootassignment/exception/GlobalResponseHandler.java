@@ -40,6 +40,7 @@ public class GlobalResponseHandler implements ResponseBodyAdvice<Object> {
                                   org.springframework.http.server.ServerHttpResponse serverHttpResponse) {
 
         // Already wrapped
+        log.info("body {}", body);
         if (body instanceof ErrorResponse) return body;
         int httpStatus = response.getStatus();
         String traceId = (String) request.getAttribute("traceId");

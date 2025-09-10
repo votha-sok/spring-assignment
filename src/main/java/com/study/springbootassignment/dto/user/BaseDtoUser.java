@@ -20,4 +20,5 @@ public class BaseDtoUser {
     @Email(message = "Email must be a valid email address.")
     private String email;
     private String phone;
+    private Boolean isSuperAdmin = false;
 }

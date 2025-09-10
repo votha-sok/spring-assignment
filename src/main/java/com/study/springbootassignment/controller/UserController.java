@@ -58,7 +58,6 @@ public class UserController {
         return  UserMapper.toDto(userService.findById(id));
     }
 
-    @PreAuthorize("hasAuthority('USER_VIEW')")
     @GetMapping("/list")
     public Page<BaseDtoUser> list(
             @RequestParam Map<String, String> params,
