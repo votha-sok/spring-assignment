@@ -1,7 +1,7 @@
 package com.study.springbootassignment.controller;
 
 
-import com.study.springbootassignment.dto.user.BaseDtoUser;
+import com.study.springbootassignment.dto.user.UserDto;
 import com.study.springbootassignment.dto.user.CreateUserDto;
 import com.study.springbootassignment.dto.user.UserMapper;
 import com.study.springbootassignment.entity.UserEntity;
@@ -9,7 +9,6 @@ import com.study.springbootassignment.service.UserService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 
@@ -26,7 +25,7 @@ public class UserController {
     private final PasswordEncoder encoder;
 
     @PostMapping("/register")
-    public BaseDtoUser register() {
+    public UserDto register() {
         UserEntity u1 = new UserEntity();
         u1.setUserName("votha");
         u1.setEmail("vothasok@example.com");
@@ -38,28 +37,28 @@ public class UserController {
 
 
     @PostMapping
-    public BaseDtoUser create(@Valid @RequestBody CreateUserDto request) {
-        return UserMapper.toDto(userService.save(request.toDto()));
+    public UserDto create(@Valid @RequestBody CreateUserDto request) {
+        return UserMapper.toDto(userService.save(request.toEntity()));
     }
 
     @PostMapping("/{id}")
-    public BaseDtoUser update(@PathVariable Long id, @RequestBody CreateUserDto request) {
-        return UserMapper.toDto(userService.update(id, request.toDto()));
+    public UserDto update(@PathVariable Long id, @Valid @RequestBody CreateUserDto request) {
+        return UserMapper.toDto(userService.update(id, request.toEntity()));
     }
 
 
     @GetMapping
-    public List<BaseDtoUser> finAll() {
+    public List<UserDto> finAll() {
         return userService.findAll().stream().map(UserMapper::toDto).collect(Collectors.toList());
     }
 
     @GetMapping("/{id}")
-    public BaseDtoUser findById(@PathVariable Long id) {
+    public UserDto findById(@PathVariable Long id) {
         return  UserMapper.toDto(userService.findById(id));
     }
 
     @GetMapping("/list")
-    public Page<BaseDtoUser> list(
+    public Page<UserDto> list(
             @RequestParam Map<String, String> params,
             @RequestParam(value = "page", defaultValue = "0") int page,
             @RequestParam(value = "size", defaultValue = "10") int size,

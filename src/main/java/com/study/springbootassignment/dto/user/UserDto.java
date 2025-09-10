@@ -11,7 +11,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 @Data
-public class BaseDtoUser {
+public class UserDto {
     private Long id;
     @NotNull(message = "User name can not be null.")
     @Pattern(regexp = "^[A-Za-z ]+$", message = "User name must contain only letters and spaces.")

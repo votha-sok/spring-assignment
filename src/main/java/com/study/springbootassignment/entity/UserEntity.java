@@ -28,5 +28,17 @@ public class UserEntity {
     private String password;
 
     @Column(name = "is_super_admin")
-    private Boolean isSuperAdmin;
+    private Boolean isSuperAdmin = false;
+
+
+    public Set<RoleEntity> getRoles() {
+        return userRoles.stream()
+                .map(UserRoleEntity::getRole)
+                .collect(Collectors.toSet());
+    }
+
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    @ToString.Exclude
+    @EqualsAndHashCode.Exclude
+    private Set<UserRoleEntity> userRoles = new HashSet<>();
 }

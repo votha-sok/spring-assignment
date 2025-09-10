@@ -2,6 +2,7 @@ package com.study.springbootassignment.jwt;
 
 import com.study.springbootassignment.entity.UserEntity;
 import com.study.springbootassignment.repository.UserRepository;
+import com.study.springbootassignment.util.UserPrincipal;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -29,17 +30,17 @@ public class UserDetailService implements UserDetailsService {
                 .orElseThrow(() -> new UsernameNotFoundException("User not found"));
 
         Set<GrantedAuthority> authorities = new HashSet<>();
-//        user.getUserRoles().forEach(userRole -> {
-//            userRole.getRole().getFeatures().forEach(feature -> {
-//                feature.getPermissions().forEach(permission -> {
-//                    String authority = feature.getTitle().toUpperCase()
-//                            + "_" + permission.getFunctionName().toUpperCase();
-//                    authorities.add(new SimpleGrantedAuthority(authority));
-//                });
-//            });
-//        });
+        user.getUserRoles().forEach(userRole -> {
+            userRole.getRole().getFeatures().forEach(feature -> {
+                feature.getPermissions().forEach(permission -> {
+                    String authority = feature.getTitle().toUpperCase()
+                            + "_" + permission.getFunctionName().toUpperCase();
+                    authorities.add(new SimpleGrantedAuthority(authority));
+                });
+            });
+        });
         log.info("Authorities: {}", authorities);
-        return null; //new CustomUserDetail(user, authorities);
+        return new UserPrincipal(user, authorities);
 
     }
 }
