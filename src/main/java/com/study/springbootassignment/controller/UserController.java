@@ -6,6 +6,7 @@ import com.study.springbootassignment.dto.user.CreateUserDto;
 import com.study.springbootassignment.dto.user.UserMapper;
 import com.study.springbootassignment.entity.UserEntity;
 import com.study.springbootassignment.service.UserService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -37,7 +38,7 @@ public class UserController {
 
 
     @PostMapping
-    public BaseDtoUser create(@RequestBody CreateUserDto request) {
+    public BaseDtoUser create(@Valid @RequestBody CreateUserDto request) {
         return UserMapper.toDto(userService.save(request.toDto()));
     }
 
