@@ -24,5 +24,7 @@ public class UserRoleEntity {
     @ManyToOne
     @JoinColumn(name = "role_id")
     private RoleEntity role;
+    @Column(name = "status")
+    private Boolean status = true;
 
 }

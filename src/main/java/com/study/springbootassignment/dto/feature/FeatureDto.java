@@ -19,6 +19,5 @@ public class FeatureDto {
     private String icon;
     @NotNull(message = "Menu order required.")
     private Integer menuOrder;
-    @NotEmpty(message = "Router link required.")
     private List<String> routerLink;
 }

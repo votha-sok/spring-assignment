@@ -102,7 +102,7 @@ public class FeatureServiceImp implements FeatureService {
 
         Set<FeatureEntity> userFeatures;
 
-        if (user.getIsSuperAdmin()) {
+        if (user.getAdmin()) {
             // Return all top-level features for super admin
             userFeatures = new HashSet<>(featureRepository.findAll());
         } else {
@@ -121,8 +121,10 @@ public class FeatureServiceImp implements FeatureService {
 
     private FeatureResponse toMenuItem(FeatureEntity feature) {
         FeatureResponse item = new FeatureResponse();
+        item.setId(feature.getId());
         item.setTitle(feature.getTitle());
         item.setIcon(feature.getIcon());
+        item.setMenuOrder(feature.getMenuOrder());
 
         // If you only use one routerLink per feature, take the first
         if (feature.getRouterLink() != null && !feature.getRouterLink().isEmpty()) {
@@ -130,12 +132,15 @@ public class FeatureServiceImp implements FeatureService {
         }
 
         // Map children recursively
-        List<FeatureEntity> children = featureRepository.findAllByParentId((feature.getId()));
-        if (children != null) {
+        List<FeatureEntity> children = featureRepository.findAllByParentId(feature.getId());
+        if (children != null && !children.isEmpty()) {
             List<FeatureResponse> items = children.stream()
                     .map(this::toMenuItem)
                     .collect(Collectors.toList());
+            item.setRouterLink(null);
             item.setItems(items);
+        } else {
+            item.setItems(null); // explicitly set null if no children
         }
         return item;
     }

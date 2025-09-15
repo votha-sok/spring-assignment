@@ -1,5 +1,7 @@
 package com.study.springbootassignment.jwt;
 
+import com.study.springbootassignment.entity.UserEntity;
+
 public class UserContext {
     private static final ThreadLocal<Long> userIdHolder = new ThreadLocal<>();
 

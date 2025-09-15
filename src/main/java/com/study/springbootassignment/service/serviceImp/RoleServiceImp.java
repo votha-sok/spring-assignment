@@ -1,17 +1,24 @@
 package com.study.springbootassignment.service.serviceImp;
 
 
+import com.study.springbootassignment.configuration.SpecificationBuilder;
 import com.study.springbootassignment.dto.role.CreateRoleFeature;
 import com.study.springbootassignment.entity.FeatureEntity;
 import com.study.springbootassignment.entity.RoleEntity;
 import com.study.springbootassignment.entity.RoleFeatureEntity;
+import com.study.springbootassignment.entity.UserEntity;
 import com.study.springbootassignment.repository.FeatureRepository;
 import com.study.springbootassignment.repository.RoleRepository;
 import com.study.springbootassignment.service.RoleService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
+import java.util.Map;
 
 @Repository
 @RequiredArgsConstructor
@@ -47,7 +54,7 @@ public class RoleServiceImp implements RoleService {
     @Override
     public RoleEntity applyRoleFeature(CreateRoleFeature request) {
         RoleEntity roleEntity = roleRepository.findById(request.getRoleId())
-                .orElseThrow(() -> new RuntimeException("User not found"));
+                .orElseThrow(() -> new RuntimeException("Role  not found"));
 
         for (Long featureId : request.getFeatureIds()) {
             FeatureEntity feature = featureRepository.findById(featureId).orElseThrow(() -> new RuntimeException("Feature not found"));
@@ -58,5 +65,12 @@ public class RoleServiceImp implements RoleService {
         }
         return roleRepository.save(roleEntity);
     }
-    
+
+    @Override
+    public Page<RoleEntity> list(Map<String, String> params, int page, int size) {
+        Specification<RoleEntity> spec = SpecificationBuilder.buildFromParams(params, RoleEntity.class);
+        PageRequest pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.fromString("DESC"), "id"));
+        return roleRepository.findAll(spec, pageable);
+    }
+
 }
