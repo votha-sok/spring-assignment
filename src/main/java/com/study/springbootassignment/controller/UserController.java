@@ -1,14 +1,19 @@
 package com.study.springbootassignment.controller;
 
 
+import com.study.springbootassignment.dto.user.UserDetailDto;
 import com.study.springbootassignment.dto.user.UserDto;
 import com.study.springbootassignment.dto.user.CreateUserDto;
 import com.study.springbootassignment.dto.user.UserMapper;
 import com.study.springbootassignment.entity.UserEntity;
+import com.study.springbootassignment.jwt.UserContext;
 import com.study.springbootassignment.service.UserService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
+import org.springframework.data.web.PagedModel;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 
@@ -22,17 +27,12 @@ import java.util.stream.Collectors;
 public class UserController {
 
     private final UserService userService;
-    private final PasswordEncoder encoder;
 
-    @PostMapping("/register")
-    public UserDto register() {
-        UserEntity u1 = new UserEntity();
-        u1.setUserName("votha");
-        u1.setEmail("vothasok@example.com");
-        u1.setPassword(encoder.encode("1234"));
-        u1.setPhone("015600022");
-        u1.setIsSuperAdmin(true);
-        return UserMapper.toDto(userService.save(u1));
+
+    @GetMapping("/info")
+    public UserDetailDto info() {
+        Long userId = UserContext.getUserId();
+        return UserMapper.toDetailDto(userService.findById(userId));
     }
 
 
@@ -57,13 +57,24 @@ public class UserController {
         return  UserMapper.toDto(userService.findById(id));
     }
 
+//    @GetMapping("/list")
+//    public Page<UserDto> list(
+//            @RequestParam Map<String, String> params,
+//            @RequestParam(value = "page", defaultValue = "0") int page,
+//            @RequestParam(value = "size", defaultValue = "10") int size,
+//            @RequestParam(value = "order", defaultValue = "DESC") String order,
+//            @RequestParam(value = "sort", defaultValue = "id") String sort) {
+//        return userService.list(params, page, size).map(UserMapper::toDto);
+//    }
     @GetMapping("/list")
-    public Page<UserDto> list(
+    HttpEntity<Page<UserDto>> list(
             @RequestParam Map<String, String> params,
             @RequestParam(value = "page", defaultValue = "0") int page,
             @RequestParam(value = "size", defaultValue = "10") int size,
             @RequestParam(value = "order", defaultValue = "DESC") String order,
-            @RequestParam(value = "sort", defaultValue = "id") String sort) {
-        return userService.list(params, page, size).map(UserMapper::toDto);
+            @RequestParam(value = "sort", defaultValue = "id") String sor
+    ) {
+        Page<UserDto> people = userService.list(params, page, size).map(UserMapper::toDto);
+        return ResponseEntity.ok(people);
     }
 }

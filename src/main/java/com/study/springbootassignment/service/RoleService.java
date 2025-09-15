@@ -4,8 +4,10 @@ package com.study.springbootassignment.service;
 
 import com.study.springbootassignment.dto.role.CreateRoleFeature;
 import com.study.springbootassignment.entity.RoleEntity;
+import org.springframework.data.domain.Page;
 
 import java.util.List;
+import java.util.Map;
 
 public interface RoleService {
     RoleEntity findById(Long id);
@@ -13,4 +15,6 @@ public interface RoleService {
     RoleEntity save(RoleEntity role);
     RoleEntity update(Long id ,RoleEntity role);
     RoleEntity applyRoleFeature(CreateRoleFeature request);
+    Page<RoleEntity> list(Map<String, String> params, int page, int size);
+
 }

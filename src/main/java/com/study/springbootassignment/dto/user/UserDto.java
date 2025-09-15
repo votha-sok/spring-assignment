@@ -20,5 +20,5 @@ public class UserDto {
     @Email(message = "Email must be a valid email address.")
     private String email;
     private String phone;
-    private Boolean isSuperAdmin = false;
+    private Boolean admin;
 }

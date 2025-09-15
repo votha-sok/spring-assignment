@@ -24,4 +24,6 @@ public class FeaturePermissionEntity {
     @JoinColumn(name = "permission_id")
     private PermissionEntity permission;
 
+    @Column(name = "status")
+    private Boolean status = true;
 }

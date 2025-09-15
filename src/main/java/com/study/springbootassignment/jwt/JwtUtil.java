@@ -45,7 +45,7 @@ public class JwtUtil {
                     .getBody()
                     .getSubject();
         } catch (JwtException e) {
-            throw new RuntimeException(e.getMessage());
+            throw new JwtException(e.getMessage());
         }
     }
     public Claims extractAllClaims(String token) {
@@ -55,7 +55,7 @@ public class JwtUtil {
                     .build()
                     .parseClaimsJws(token)
                     .getBody();
-        } catch (JwtException e) {
+        } catch (Exception e) {
             throw new RuntimeException(e.getMessage());
         }
     }
@@ -67,7 +67,7 @@ public class JwtUtil {
                     .build()
                     .parseClaimsJws(token);
             return true;
-        } catch (JwtException e) {
+        } catch (Exception e) {
             throw new RuntimeException(e.getMessage());
         }
     }

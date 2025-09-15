@@ -45,7 +45,6 @@ public class GlobalResponseHandler implements ResponseBodyAdvice<Object> {
         int httpStatus = response.getStatus();
         String traceId = (String) request.getAttribute("traceId");
         boolean isError = httpStatus >= 400;
-        int code = isError ? -1 : 0;
         String message = isError ? "Error" : "Success";
         String timeStam = Instant.now().toString();
         if (body instanceof Page<?> page) {
@@ -58,7 +57,7 @@ public class GlobalResponseHandler implements ResponseBodyAdvice<Object> {
                     page.hasPrevious()
             );
             PagedResponse<Object> response = new PagedResponse<>();
-            response.setCode(0);
+            response.setCode(200);
             response.setStatus(200);
             response.setData((List<Object>) content);
             response.setMessage("Success");
@@ -70,7 +69,7 @@ public class GlobalResponseHandler implements ResponseBodyAdvice<Object> {
         }
 
         return new Response<>(
-                code,
+                200,
                 httpStatus,
                 body,
                 message,
