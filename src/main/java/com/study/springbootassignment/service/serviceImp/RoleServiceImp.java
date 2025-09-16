@@ -6,21 +6,22 @@ import com.study.springbootassignment.dto.role.CreateRoleFeature;
 import com.study.springbootassignment.entity.FeatureEntity;
 import com.study.springbootassignment.entity.RoleEntity;
 import com.study.springbootassignment.entity.RoleFeatureEntity;
-import com.study.springbootassignment.entity.UserEntity;
 import com.study.springbootassignment.repository.FeatureRepository;
 import com.study.springbootassignment.repository.RoleRepository;
 import com.study.springbootassignment.service.RoleService;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
-import org.springframework.stereotype.Repository;
+import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Map;
 
-@Repository
+@Slf4j
+@Service
 @RequiredArgsConstructor
 public class RoleServiceImp implements RoleService {
 
@@ -58,6 +59,7 @@ public class RoleServiceImp implements RoleService {
 
         for (Long featureId : request.getFeatureIds()) {
             FeatureEntity feature = featureRepository.findById(featureId).orElseThrow(() -> new RuntimeException("Feature not found"));
+            log.info("feature {}", feature);
             RoleFeatureEntity roleFeature = new RoleFeatureEntity();
             roleFeature.setFeature(feature);
             roleFeature.setRole(roleEntity);

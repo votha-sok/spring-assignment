@@ -1,6 +1,7 @@
 package com.study.springbootassignment.service;
 
 
+import com.study.springbootassignment.dto.user.ApplyUserRoleDto;
 import com.study.springbootassignment.entity.UserEntity;
 import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Service;
@@ -15,4 +16,6 @@ public interface UserService {
     List<UserEntity> findAll();
     UserEntity findById(Long id);
     Page<UserEntity> list(Map<String, String> params, int page, int size);
+    UserEntity applyUserRole(ApplyUserRoleDto request);
+
 }

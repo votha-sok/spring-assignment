@@ -1,4 +1,4 @@
-/*
+
 package com.study.springbootassignment.security;
 
 
@@ -7,13 +7,13 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
-@Configuration
-public class SecurityConfig {
+//@Configuration
+//public class SecurityConfig {
+//
+//    @Bean
+//    public PasswordEncoder passwordEncoder() {
+//        // BCrypt is the recommended encoder
+//        return new BCryptPasswordEncoder();
+//    }
+//}
 
-    @Bean
-    public PasswordEncoder passwordEncoder() {
-        // BCrypt is the recommended encoder
-        return new BCryptPasswordEncoder();
-    }
-}
-*/

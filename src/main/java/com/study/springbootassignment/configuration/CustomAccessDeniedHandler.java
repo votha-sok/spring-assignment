@@ -24,12 +24,13 @@ public class CustomAccessDeniedHandler implements AccessDeniedHandler {
                        AccessDeniedException accessDeniedException) throws IOException {
 
         log.error("Access denied: {}", accessDeniedException.getMessage());
+        String traceId = (String) request.getAttribute("traceId");
 
         ErrorResponse errorResponse = new ErrorResponse(
                 1,
                 HttpServletResponse.SC_FORBIDDEN,
                 "Forbidden: " + accessDeniedException.getMessage(),
-                UUID.randomUUID().toString(),
+                traceId,
                 request.getRequestURI(),
                 Instant.now().toString()
         );
