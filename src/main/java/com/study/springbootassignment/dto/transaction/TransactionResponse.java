@@ -1,5 +1,6 @@
 package com.study.springbootassignment.dto.transaction;
 
+import com.study.springbootassignment.dto.account.AccountDto;
 import com.study.springbootassignment.dto.user.UserDto;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -12,8 +13,8 @@ import java.time.LocalDateTime;
 @SuperBuilder
 public class TransactionResponse extends TransactionDto {
     private Long id;
-    private String fromAccountNumber;
-    private String toAccountNumber;
+    private AccountDto fromAccount;
+    private AccountDto toAccount;
     private String transactionStatus;
     private String transactionType;
     private UserDto processBy;

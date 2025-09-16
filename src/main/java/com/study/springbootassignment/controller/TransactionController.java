@@ -14,7 +14,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-@RequestMapping("/transaction")
+@RequestMapping("/transactions")
 @RequiredArgsConstructor
 public class TransactionController {
     private final TransactionService transactionService;
@@ -22,24 +22,21 @@ public class TransactionController {
     @PreAuthorize("hasAnyAuthority('TRANSACTION_TRANSFER')")
     @PostMapping("/transfer")
     public ResponseEntity<TransactionResponse> transfer(@Valid @RequestBody CreateTransfer transfer) {
-        TransactionEntity tx = transfer.toEntity();
-        TransactionResponse response = TransactionMapper.toDto(transactionService.processTransfer(tx));
+        TransactionResponse response = TransactionMapper.toDto(transactionService.processTransfer(transfer));
         return ResponseEntity.ok(response);
     }
 
     @PreAuthorize("hasAnyAuthority('TRANSACTION_DEPOSIT')")
     @PostMapping("/deposit")
     public ResponseEntity<TransactionResponse> deposit(@Valid @RequestBody CreateDeposit deposit) {
-        TransactionEntity tx = deposit.toEntity();
-        TransactionResponse response = TransactionMapper.toDto(transactionService.processDeposit(tx));
+        TransactionResponse response = TransactionMapper.toDto(transactionService.processDeposit(deposit));
         return ResponseEntity.ok(response);
     }
 
     @PreAuthorize("hasAnyAuthority('TRANSACTION_WITHDRAW')")
     @PostMapping("/withdraw")
     public ResponseEntity<TransactionResponse> withdraw(@Valid @RequestBody CreateWithdraw withdraw) {
-        TransactionEntity tx = withdraw.toEntity();
-        TransactionResponse response = TransactionMapper.toDto(transactionService.processWithdraw(tx));
+        TransactionResponse response = TransactionMapper.toDto(transactionService.processWithdraw(withdraw));
         return ResponseEntity.ok(response);
     }
 }
