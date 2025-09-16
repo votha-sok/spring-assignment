@@ -6,23 +6,23 @@ import com.study.springbootassignment.util.TransactionType;
 import jakarta.validation.constraints.NotBlank;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
 import java.time.LocalDateTime;
 
 @EqualsAndHashCode(callSuper = true)
 @Data
 @SuperBuilder
+@NoArgsConstructor
 public class CreateTransfer extends TransactionDto {
-    @NotBlank
+    @NotBlank(message = "From Account number can not be null.")
     private String fromAccountNumber;
-    @NotBlank
+    @NotBlank(message = "To Account number can not be null.")
     private String toAccountNumber;
     public TransactionEntity toEntity() {
         TransactionEntity transaction = new TransactionEntity();
         transaction.setTransactionStatus(TransactionStatus.PENDING);
         transaction.setTransactionType(TransactionType.TRANSFER);
-        transaction.setFromAccountNumber(fromAccountNumber);
-        transaction.setToAccountNumber(toAccountNumber);
         transaction.setDescription(getDescription());
         transaction.setAmount(getAmount());
         transaction.setTimestamp(LocalDateTime.now());

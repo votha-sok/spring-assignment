@@ -19,11 +19,13 @@ public class TransactionEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(name = "form_account_number")
-    private String fromAccountNumber;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "from_account_id", nullable = false)
+    private AccountEntity fromAccount;
 
-    @Column(name = "to_account_number")
-    private String toAccountNumber;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "to_account_id", nullable = false)
+    private AccountEntity toAccount;
 
     @Column(precision = 19, scale = 4, nullable = false)
     private BigDecimal amount;

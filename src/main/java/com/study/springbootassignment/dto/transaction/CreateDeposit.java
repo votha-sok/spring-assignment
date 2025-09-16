@@ -20,7 +20,6 @@ public class CreateDeposit extends TransactionDto {
         TransactionEntity transaction = new TransactionEntity();
         transaction.setTransactionType(TransactionType.DEPOSIT);
         transaction.setTransactionStatus(TransactionStatus.PENDING);
-        transaction.setToAccountNumber(accountNumber);
         transaction.setDescription(getDescription());
         transaction.setAmount(getAmount());
         transaction.setTimestamp(LocalDateTime.now());

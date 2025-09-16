@@ -8,8 +8,7 @@ import org.springframework.stereotype.Service;
 
 @Service
 public interface TransactionService {
-    TransactionEntity processTransfer(TransactionEntity request);
-    TransactionEntity processDeposit(TransactionEntity request);
-    TransactionEntity processWithdraw(TransactionEntity request);
-
+    TransactionEntity processTransfer(CreateTransfer request);
+    TransactionEntity processDeposit(CreateDeposit request);
+    TransactionEntity processWithdraw(CreateWithdraw request);
 }

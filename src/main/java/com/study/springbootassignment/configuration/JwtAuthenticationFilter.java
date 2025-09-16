@@ -39,9 +39,10 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     private static final AntPathMatcher MATCHER = new AntPathMatcher();
     private final String HEALTH_CHECK = "/health";
     private final String LOGIN = "/login";
+    private final String ADMIN = "/admin/**";
     private final String REGISTER = "/users/register";
     private final List<String> EXCLUDED_PATHS = List.of(
-            HEALTH_CHECK, LOGIN, REGISTER
+            HEALTH_CHECK, LOGIN, REGISTER, ADMIN
     );
 
     @Override
@@ -87,7 +88,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                         SecurityContextHolder.getContext().setAuthentication(authToken);
                     }
                 }
-            }  catch (JwtException e) {
+            } catch (JwtException e) {
                 log.error("JWT error: {}", e.getMessage());
                 jwtAuthenticationEntryPoint.commence(request, response,
                         new AuthenticationServiceException(e.getMessage())); // message you want

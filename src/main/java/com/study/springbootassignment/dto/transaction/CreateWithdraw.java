@@ -20,7 +20,6 @@ public class CreateWithdraw extends TransactionDto {
         TransactionEntity transaction = new TransactionEntity();
         transaction.setTransactionType(TransactionType.WITHDRAW);
         transaction.setTransactionStatus(TransactionStatus.PENDING);
-        transaction.setToAccountNumber(accountNumber);
         transaction.setDescription(getDescription());
         transaction.setAmount(getAmount());
         transaction.setTimestamp(LocalDateTime.now());
