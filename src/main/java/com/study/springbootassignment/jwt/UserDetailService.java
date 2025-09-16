@@ -33,8 +33,7 @@ public class UserDetailService implements UserDetailsService {
         user.getUserRoles().forEach(userRole -> {
             userRole.getRole().getFeatures().forEach(feature -> {
                 feature.getPermissions().forEach(permission -> {
-                    String authority = feature.getTitle().toUpperCase()
-                            + "_" + permission.getFunctionName().toUpperCase();
+                    String authority = permission.getFunctionName().toUpperCase() + "_" + feature.getTitle().toUpperCase();
                     authorities.add(new SimpleGrantedAuthority(authority));
                 });
             });

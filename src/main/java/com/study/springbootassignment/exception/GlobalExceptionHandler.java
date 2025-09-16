@@ -29,45 +29,55 @@ public class GlobalExceptionHandler  {
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ErrorResponse> handleException(Exception ex, HttpServletRequest request) {
         log.error("Unhandled exception: ", ex);
-        return buildResponse(500, "Internal Server Error", ex.getMessage(), request.getRequestURI());
+        String traceId = (String) request.getAttribute("traceId");
+        return buildResponse(500, "Internal Server Error", ex.getMessage(), request.getRequestURI(),traceId);
     }
     @ExceptionHandler(JwtException.class)
     public ResponseEntity<ErrorResponse> handleException(JwtException ex, HttpServletRequest request) {
         log.error("JwtException exception: ", ex);
-        return buildResponse(500, "Internal Server Error", ex.getMessage(), request.getRequestURI());
+        String traceId = (String) request.getAttribute("traceId");
+        return buildResponse(500, "Internal Server Error", ex.getMessage(), request.getRequestURI(), traceId);
     }
     @ExceptionHandler(ExpiredJwtException.class)
     public ResponseEntity<ErrorResponse> handleException(ExpiredJwtException ex, HttpServletRequest request) {
         log.error("ExpiredJwtException exception: ", ex);
-        return buildResponse(500, "Internal Server Error", ex.getMessage(), request.getRequestURI());
+        String traceId = (String) request.getAttribute("traceId");
+
+        return buildResponse(500, "Internal Server Error", ex.getMessage(), request.getRequestURI(), traceId);
     }
 
     // 404 Not Found
     @ExceptionHandler(ResourceNotFoundException.class)
     public ResponseEntity<ErrorResponse> handleNotFound(ResourceNotFoundException ex, HttpServletRequest request) {
         log.error("ResourceNotFoundException: ", ex);
-        return buildResponse(404, "Resource Not Found", ex.getMessage(), request.getRequestURI());
+        String traceId = (String) request.getAttribute("traceId");
+
+        return buildResponse(404, "Resource Not Found", ex.getMessage(), request.getRequestURI(),traceId);
     }
 
     // 401 Unauthorized (custom exception)
     @ExceptionHandler(UnauthorizedException.class)
     public ResponseEntity<ErrorResponse> handleUnauthorized(UnauthorizedException ex, HttpServletRequest request) {
         log.error("UnauthorizedException: ", ex);
-        return buildResponse(401, "Unauthorized", ex.getMessage(), request.getRequestURI());
+        String traceId = (String) request.getAttribute("traceId");
+
+        return buildResponse(401, "Unauthorized", ex.getMessage(), request.getRequestURI(), traceId);
     }
 
     // 403 Access Denied
     @ExceptionHandler(AccessDeniedException.class)
     public ResponseEntity<ErrorResponse> handleAccessDenied(AccessDeniedException ex, HttpServletRequest request) {
         log.error("AccessDeniedException: ", ex);
-        return buildResponse(403, "Access Denied", ex.getMessage(), request.getRequestURI());
+        String traceId = (String) request.getAttribute("traceId");
+        return buildResponse(403, "Access Denied", ex.getMessage(), request.getRequestURI(), traceId);
     }
 
     // ResponseStatusException for Spring built-in exceptions
     @ExceptionHandler(ResponseStatusException.class)
     public ResponseEntity<ErrorResponse> handleStatusException(ResponseStatusException ex, HttpServletRequest request) {
         log.error("ResponseStatusException: ", ex);
-        return buildResponse(ex.getStatusCode().value(), ex.getStatusCode().toString(), ex.getReason(), request.getRequestURI());
+        String traceId = (String) request.getAttribute("traceId");
+        return buildResponse(ex.getStatusCode().value(), ex.getStatusCode().toString(), ex.getReason(), request.getRequestURI(), traceId);
     }
 
     // Validation errors (400 Bad Request)
@@ -83,13 +93,13 @@ public class GlobalExceptionHandler  {
                     .append(fieldError.getDefaultMessage())
                     .append("; ");
         }
-
-        return buildResponse(400, "Validation Failed", errorMsg.toString(), request.getRequestURI());
+        String traceId = (String) request.getAttribute("traceId");
+        return buildResponse(400, "Validation Failed", errorMsg.toString(), request.getRequestURI(), traceId);
     }
 
     // ---------------- Helper method ----------------
-    private ResponseEntity<ErrorResponse> buildResponse(int status, String error, String message, String path) {
-        String traceId = UUID.randomUUID().toString();
+    private ResponseEntity<ErrorResponse> buildResponse(int status, String error, String message, String path, String traceId) {
+
         String timestamp = Instant.now().toString();
         ErrorResponse resp = new ErrorResponse(
                 200, // custom app code

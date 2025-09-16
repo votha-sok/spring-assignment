@@ -23,12 +23,12 @@ public class JwtAuthenticationEntryPoint implements AuthenticationEntryPoint {
                          org.springframework.security.core.AuthenticationException authException) throws IOException {
 
         log.error("Authentication error: {}", authException.getMessage());
-
+        String traceId = (String) request.getAttribute("traceId");
         ErrorResponse errorResponse = new ErrorResponse(
                 400,
                 HttpServletResponse.SC_UNAUTHORIZED,
                 "Unauthorized: " + authException.getMessage(),
-                UUID.randomUUID().toString(),
+                traceId,
                 request.getRequestURI(),
                 Instant.now().toString()
         );
