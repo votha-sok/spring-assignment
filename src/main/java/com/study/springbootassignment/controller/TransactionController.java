@@ -2,7 +2,6 @@ package com.study.springbootassignment.controller;
 
 
 import com.study.springbootassignment.dto.transaction.*;
-import com.study.springbootassignment.entity.TransactionEntity;
 import com.study.springbootassignment.service.TransactionService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -19,21 +18,21 @@ import org.springframework.web.bind.annotation.RestController;
 public class TransactionController {
     private final TransactionService transactionService;
 
-    @PreAuthorize("hasAnyAuthority('TRANSACTION_TRANSFER')")
+    @PreAuthorize("hasAnyAuthority('CREATE_TRANSFER')")
     @PostMapping("/transfer")
     public ResponseEntity<TransactionResponse> transfer(@Valid @RequestBody CreateTransfer transfer) {
         TransactionResponse response = TransactionMapper.toDto(transactionService.processTransfer(transfer));
         return ResponseEntity.ok(response);
     }
 
-    @PreAuthorize("hasAnyAuthority('TRANSACTION_DEPOSIT')")
+    @PreAuthorize("hasAnyAuthority('CREATE_DEPOSIT')")
     @PostMapping("/deposit")
     public ResponseEntity<TransactionResponse> deposit(@Valid @RequestBody CreateDeposit deposit) {
         TransactionResponse response = TransactionMapper.toDto(transactionService.processDeposit(deposit));
         return ResponseEntity.ok(response);
     }
 
-    @PreAuthorize("hasAnyAuthority('TRANSACTION_WITHDRAW')")
+    @PreAuthorize("hasAnyAuthority('CREATE_WITHDRAW')")
     @PostMapping("/withdraw")
     public ResponseEntity<TransactionResponse> withdraw(@Valid @RequestBody CreateWithdraw withdraw) {
         TransactionResponse response = TransactionMapper.toDto(transactionService.processWithdraw(withdraw));

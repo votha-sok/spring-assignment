@@ -14,16 +14,14 @@ import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.server.ResponseStatusException;
-import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
 
-import javax.management.JMException;
 import java.time.Instant;
-import java.util.UUID;
+
 
 @Slf4j
 @ControllerAdvice
 @Order(Ordered.HIGHEST_PRECEDENCE)
-public class GlobalExceptionHandler  {
+public class GlobalExceptionHandler extends RuntimeException {
 
     // Generic Exception
     @ExceptionHandler(Exception.class)

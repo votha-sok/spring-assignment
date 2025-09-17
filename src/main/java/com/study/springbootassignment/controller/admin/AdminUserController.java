@@ -9,6 +9,7 @@ import lombok.AllArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -21,19 +22,22 @@ import java.util.stream.Collectors;
 public class AdminUserController {
     private final UserService userService;
 
+    @PreAuthorize("hasAnyAuthority('ROLE_ADMIN')")
     @GetMapping("/info")
-    public ResponseEntity<UserDetailDto> info() {
-        UserDetailDto response = UserMapper.toDetailDto(userService.findById(UserContext.getUserId()));
+    public ResponseEntity<UserInfoDto> info() {
+        UserInfoDto response = UserMapper.toInfoDto(userService.findById(UserContext.getUserId()));
         return ResponseEntity.ok(response);
     }
 
 
+    @PreAuthorize("hasAnyAuthority('ROLE_ADMIN')")
     @PostMapping
     public ResponseEntity<UserDto> create(@Valid @RequestBody CreateUserDto request) {
         UserDto response = UserMapper.toDto(userService.save(request.toEntity()));
         return ResponseEntity.ok(response);
     }
 
+    @PreAuthorize("hasAnyAuthority('ROLE_ADMIN')")
     @PutMapping("/{id}")
     public ResponseEntity<UserDto> update(@PathVariable Long id, @Valid @RequestBody UpdateUserDto request) {
         UserDto response = UserMapper.toDto(userService.update(id, request.toEntity()));
@@ -41,25 +45,31 @@ public class AdminUserController {
     }
 
 
+    @PreAuthorize("hasAnyAuthority('ROLE_ADMIN')")
     @GetMapping
     public ResponseEntity<List<UserDto>> finAll() {
         List<UserDto> response = userService.findAll().stream().map(UserMapper::toDto).collect(Collectors.toList());
         return ResponseEntity.ok(response);
     }
 
+    @PreAuthorize("hasAnyAuthority('ROLE_ADMIN')")
     @GetMapping("/{id}")
     public ResponseEntity<UserDto> findById(@PathVariable Long id) {
         UserDto response = UserMapper.toDto(userService.findById(id));
         return ResponseEntity.ok(response);
     }
 
+    @PreAuthorize("hasAnyAuthority('ROLE_ADMIN')")
     @PostMapping("/apply-role")
-    public ResponseEntity<UserDetailDto> assignRole(@RequestBody @Valid ApplyUserRoleDto request) {
+    public ResponseEntity<UserInfoDto> assignRole(@RequestBody @Valid ApplyUserRoleDto request) {
         UserEntity user = userService.applyUserRole(request);
-        UserDetailDto response = UserMapper.toDetailDto(user);
+        UserInfoDto response = UserMapper.toInfoDto(user);
         return ResponseEntity.ok(response);
     }
 
+
+    //    @PreAuthorize("hasAnyAuthority('ROLE_ADMIN')")
+    @PreAuthorize("hasAnyAuthority('ROLE_ADMIN')")
     @GetMapping("/list")
     HttpEntity<Page<UserDto>> list(
             @RequestParam Map<String, String> params,

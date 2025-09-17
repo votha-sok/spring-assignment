@@ -10,6 +10,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -24,45 +25,52 @@ public class UserController {
     private final UserService userService;
 
 
+    @PreAuthorize("hasAnyAuthority('VIEW_USER')")
     @GetMapping("/info")
-    public ResponseEntity<UserDetailDto> info() {
-        UserDetailDto response = UserMapper.toDetailDto(userService.findById(UserContext.getUserId()));
+    public ResponseEntity<UserInfoDto> info() {
+        UserInfoDto response = UserMapper.toInfoDto(userService.findById(UserContext.getUserId()));
         return ResponseEntity.ok(response);
     }
 
 
+    @PreAuthorize("hasAnyAuthority('CREATE_USER')")
     @PostMapping
     public ResponseEntity<UserDto> create(@Valid @RequestBody CreateUserDto request) {
         UserDto response = UserMapper.toDto(userService.save(request.toEntity()));
         return ResponseEntity.ok(response);
     }
 
+    @PreAuthorize("hasAnyAuthority('UPDATE_USER')")
     @PutMapping("/{id}")
-    public ResponseEntity<UserDto> update(@PathVariable Long id, @Valid @RequestBody UpdateUserDto request) {
-        UserDto response = UserMapper.toDto(userService.update(id, request.toEntity()));
+    public ResponseEntity<UserDetailDto> update(@PathVariable Long id, @Valid @RequestBody UpdateUserDto request) {
+        UserDetailDto response = UserMapper.toDetailDto(userService.update(id, request.toEntity()));
         return ResponseEntity.ok(response);
     }
 
 
+    @PreAuthorize("hasAnyAuthority('VIEW_USER')")
     @GetMapping
     public ResponseEntity<List<UserDto>> finAll() {
         List<UserDto> response = userService.findAll().stream().map(UserMapper::toDto).collect(Collectors.toList());
         return ResponseEntity.ok(response);
     }
 
+    @PreAuthorize("hasAnyAuthority('VIEW_USER')")
     @GetMapping("/{id}")
-    public ResponseEntity<UserDto> findById(@PathVariable Long id) {
-        UserDto response = UserMapper.toDto(userService.findById(id));
+    public ResponseEntity<UserDetailDto> findById(@PathVariable Long id) {
+        UserDetailDto response = UserMapper.toDetailDto(userService.findById(id));
         return ResponseEntity.ok(response);
     }
 
+    @PreAuthorize("hasAnyAuthority('APPLY_ROLE_USER')")
     @PostMapping("/apply-role")
-    public ResponseEntity<UserDetailDto> assignRole(@RequestBody @Valid ApplyUserRoleDto request) {
+    public ResponseEntity<UserInfoDto> assignRole(@RequestBody @Valid ApplyUserRoleDto request) {
         UserEntity user = userService.applyUserRole(request);
-        UserDetailDto response = UserMapper.toDetailDto(user);
+        UserInfoDto response = UserMapper.toInfoDto(user);
         return ResponseEntity.ok(response);
     }
 
+    @PreAuthorize("hasAnyAuthority('VIEW_USER')")
     @GetMapping("/list")
     HttpEntity<Page<UserDto>> list(
             @RequestParam Map<String, String> params,

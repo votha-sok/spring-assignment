@@ -1,5 +1,6 @@
 package com.study.springbootassignment.jwt;
 
+import com.study.springbootassignment.configuration.CustomAccessDeniedHandler;
 import com.study.springbootassignment.entity.UserEntity;
 import com.study.springbootassignment.repository.UserRepository;
 import com.study.springbootassignment.util.UserPrincipal;
@@ -22,24 +23,27 @@ import java.util.Set;
 @Transactional
 public class UserDetailService implements UserDetailsService {
     private final UserRepository userRepository;
-
+    private final CustomAccessDeniedHandler customAccessDeniedHandler;
     @Transactional
     @Override
     public UserDetails loadUserByUsername(String email) {
-        UserEntity user = userRepository.findByEmail((email))
-                .orElseThrow(() -> new UsernameNotFoundException("User not found"));
 
-        Set<GrantedAuthority> authorities = new HashSet<>();
-        user.getUserRoles().forEach(userRole -> {
-            userRole.getRole().getFeatures().forEach(feature -> {
-                feature.getPermissions().forEach(permission -> {
-                    String authority = permission.getFunctionName().toUpperCase() + "_" + feature.getTitle().toUpperCase();
-                    authorities.add(new SimpleGrantedAuthority(authority));
+            UserEntity user = userRepository.findByEmail((email))
+                    .orElseThrow(() -> new UsernameNotFoundException("User not found"));
+
+            Set<GrantedAuthority> authorities = new HashSet<>();
+            user.getUserRoles().forEach(userRole -> {
+                userRole.getRole().getFeatures().forEach(feature -> {
+                    feature.getPermissions().forEach(permission -> {
+                        String authority = permission.getFunctionName().toUpperCase() + "_" + feature.getTitle().toUpperCase();
+                        authorities.add(new SimpleGrantedAuthority(authority));
+                    });
                 });
             });
-        });
-        log.info("Authorities: {}", authorities);
-        return new UserPrincipal(user, authorities);
-
+            if (user.getAdmin()) {
+                authorities.add(new SimpleGrantedAuthority("ROLE_ADMIN"));
+            }
+            log.info("Authorities: {}", authorities);
+            return new UserPrincipal(user, authorities);
     }
 }

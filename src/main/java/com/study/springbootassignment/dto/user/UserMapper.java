@@ -12,7 +12,7 @@ import java.util.stream.Collectors;
 
 public class UserMapper {
 
-    public static UserDetailDto toDetailDto(UserEntity user) {
+    public static UserInfoDto toInfoDto(UserEntity user) {
         Set<UserRoleDto> roleDtos = user.getUserRoles().stream()
                 .map(ur -> new UserRoleDto(
                         ur.getRole().getId(),
@@ -24,7 +24,7 @@ public class UserMapper {
                 .flatMap(userRole -> userRole.getRole().getFeatures().stream())
                 .map(feature -> {
                     List<PermissionDto> perms = feature.getPermissions().stream()
-                            .map(p -> new PermissionDto(p.getId(), p.getFunctionName(),p.getFunctionOrder()))
+                            .map(p -> new PermissionDto(p.getId(), p.getFunctionName(), p.getFunctionOrder()))
                             .toList();
                     return new FeaturePermissionResponse(
                             feature.getId(),
@@ -33,8 +33,34 @@ public class UserMapper {
                     );
                 })
                 .collect(Collectors.toSet());
-        return new UserDetailDto(user.getId(), user.getUserName(), user.getEmail(), user.getPhone(), user.getAdmin(), roleDtos, permissions);
+        return UserInfoDto.builder()
+                .id(user.getId())
+                .email(user.getEmail())
+                .admin(user.getAdmin())
+                .phone(user.getPhone())
+                .userName(user.getUserName())
+                .roles(roleDtos)
+                .featurePermissions(permissions)
+                .build();
     }
+
+    public static UserDetailDto toDetailDto(UserEntity user) {
+        Set<UserRoleDto> roleDto = user.getUserRoles().stream()
+                .map(ur -> new UserRoleDto(
+                        ur.getRole().getId(),
+                        ur.getRole().getName()
+                ))
+                .collect(Collectors.toSet());
+        return UserDetailDto.builder()
+                .id(user.getId())
+                .userName(user.getUserName())
+                .email(user.getEmail())
+                .phone(user.getPhone())
+                .roles(roleDto)
+                .admin(user.getAdmin())
+                .build();
+    }
+
     public static UserDto toDto(UserEntity user) {
         return new UserDto(user.getId(), user.getUserName(), user.getEmail(), user.getPhone(), user.getAdmin());
     }

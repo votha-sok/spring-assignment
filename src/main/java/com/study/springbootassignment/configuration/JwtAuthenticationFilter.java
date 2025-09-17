@@ -1,6 +1,7 @@
 package com.study.springbootassignment.configuration;
 
 
+import com.study.springbootassignment.exception.ResourceNotFoundException;
 import com.study.springbootassignment.jwt.JwtUtil;
 import com.study.springbootassignment.jwt.UserContext;
 import com.study.springbootassignment.jwt.UserDetailService;
@@ -17,6 +18,7 @@ import org.springframework.security.authentication.AuthenticationServiceExceptio
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
 import org.springframework.stereotype.Component;
 import org.springframework.util.AntPathMatcher;
@@ -39,10 +41,9 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     private static final AntPathMatcher MATCHER = new AntPathMatcher();
     private final String HEALTH_CHECK = "/health";
     private final String LOGIN = "/login";
-    private final String ADMIN = "/admin/**";
     private final String REGISTER = "/users/register";
     private final List<String> EXCLUDED_PATHS = List.of(
-            HEALTH_CHECK, LOGIN, REGISTER, ADMIN
+            HEALTH_CHECK, LOGIN, REGISTER
     );
 
     @Override
@@ -79,6 +80,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                 UserContext.setUserId(userId);
 
                 if (username != null && SecurityContextHolder.getContext().getAuthentication() == null) {
+
                     UserDetails userDetails = this.userDetailService.loadUserByUsername(username);
 
                     if (jwtUtil.validateToken(jwt)) {

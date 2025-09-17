@@ -6,11 +6,13 @@ import jakarta.validation.constraints.Pattern;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import lombok.experimental.SuperBuilder;
 
 
 @NoArgsConstructor
 @AllArgsConstructor
 @Data
+@SuperBuilder
 public class UserDto {
     private Long id;
     @NotNull(message = "User name can not be null.")
