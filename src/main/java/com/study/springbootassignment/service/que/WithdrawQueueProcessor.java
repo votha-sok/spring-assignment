@@ -1,6 +1,6 @@
 package com.study.springbootassignment.service.que;
 
-import com.study.springbootassignment.dto.transaction.CreateTransfer;
+import com.study.springbootassignment.dto.transaction.CreateDeposit;
 import com.study.springbootassignment.dto.transaction.CreateWithdraw;
 import com.study.springbootassignment.jwt.UserContext;
 import com.study.springbootassignment.service.serviceImp.TransactionProcessorService;
@@ -13,29 +13,27 @@ import java.util.concurrent.LinkedBlockingQueue;
 
 @Slf4j
 @Component
-public class TransferQueueProcessor {
+public class WithdrawQueueProcessor {
 
     private final TransactionProcessorService processorService;
 
-    private final BlockingQueue<CreateTransfer> transferQueue = new LinkedBlockingQueue<>();
+    private final BlockingQueue<CreateWithdraw> withdrawQueue = new LinkedBlockingQueue<>();
 
-    public TransferQueueProcessor(TransactionProcessorService processorService) {
+    public WithdrawQueueProcessor(TransactionProcessorService processorService) {
         this.processorService = processorService;
         startWorker();
     }
 
     // Enqueue transfer request
-//    public void enqueue(CreateTransfer request) {
+//    public void enqueue(CreateWithdraw request) {
 //        request.setUserId(UserContext.getUserId());
-//        transferQueue.add(request);
-//        System.out.println("📝 Queued transfer from " + request.getFromAccountNumber() +
-//                " to " + request.getToAccountNumber() +
+//        withdrawQueue.add(request);
+//        System.out.println("📝 Queued withdraw to " + request.getAccountNumber() +
 //                " amount: " + request.getAmount());
 //    }
-    public CompletableFuture<CreateTransfer> enqueue(CreateTransfer request) {
-        request.setUserId(UserContext.getUserId());
+    public CompletableFuture<CreateWithdraw> enqueue(CreateWithdraw request) {
         return CompletableFuture.supplyAsync(() -> {
-            processorService.handleTransfer(request);
+            processorService.handleWithdraw(request);
             return request;
         });
     }
@@ -44,17 +42,15 @@ public class TransferQueueProcessor {
         Thread worker = new Thread(() -> {
             while (true) {
                 try {
-                    CreateTransfer request = transferQueue.take(); // blocks
-                    System.out.println("⚡ Processing transfer: " + request.getFromAccountNumber() +
-                            " -> " + request.getToAccountNumber());
+                    CreateWithdraw request = withdrawQueue.take(); // blocks
+                    System.out.println("⚡ Processing withdraw : " + request.getAccountNumber() );
 
                     // Call actual transactional handler
-                    processorService.handleTransfer(request);
+                    processorService.handleWithdraw(request);
 
-                    System.out.println("✅ Processed transfer: " + request.getFromAccountNumber() +
-                            " -> " + request.getToAccountNumber());
+                    System.out.println("✅ Processed withdraw: " + request.getAccountNumber());
                 } catch (Exception e) {
-                    System.err.println("❌ Failed to process transfer: " + e.getMessage());
+                    System.err.println("❌ Failed to process withdraw: " + e.getMessage());
                     e.printStackTrace();
                 }
             }

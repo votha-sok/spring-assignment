@@ -42,6 +42,15 @@ public class SpecificationBuilder {
                     } else if (fieldType.equals(LocalDateTime.class)) {
                         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
                         predicates.add(cb.equal(path, LocalDateTime.parse(rawValue, formatter)));
+                    } else if (fieldType.isEnum()) {
+                        @SuppressWarnings("unchecked")
+                        Class<? extends Enum> enumType = (Class<? extends Enum>) fieldType;
+                        try {
+                            Enum<?> enumValue = Enum.valueOf(enumType, rawValue.toUpperCase());
+                            predicates.add(cb.equal(path, enumValue));
+                        } catch (IllegalArgumentException ex) {
+                            log.warn("Invalid enum value for {}: {}", key, rawValue);
+                        }
                     } else {
                         log.info("Unsupported type for {}: {}", key, fieldType);
                     }

@@ -6,6 +6,7 @@ import com.study.springbootassignment.dto.transaction.CreateWithdraw;
 import com.study.springbootassignment.entity.AccountEntity;
 import com.study.springbootassignment.entity.TransactionEntity;
 import com.study.springbootassignment.entity.UserEntity;
+import com.study.springbootassignment.exception.InsufficientFundsException;
 import com.study.springbootassignment.repository.AccountRepository;
 import com.study.springbootassignment.repository.TransactionRepository;
 import com.study.springbootassignment.repository.UserRepository;
@@ -36,7 +37,7 @@ public class TransactionProcessorService {
                 .orElseThrow(() -> new RuntimeException("To account not found"));
 
         if (from.getBalance().compareTo(request.getAmount()) < 0) {
-            throw new RuntimeException("Insufficient funds");
+            throw new InsufficientFundsException("Insufficient funds");
         }
         TransactionEntity tx = request.toEntity();
         BigDecimal amount = tx.getAmount();
@@ -58,7 +59,7 @@ public class TransactionProcessorService {
             tx.setProcessedBy(processByUser(request.getUserId()));
             tx.setTransactionStatus(TransactionStatus.FAILED);
             transactionRepository.save(tx);
-            throw new RuntimeException(e.getMessage()); // rollback
+            throw e; // rollback
         }
     }
 
@@ -82,7 +83,7 @@ public class TransactionProcessorService {
             tx.setProcessedBy(processByUser(request.getUserId()));
             tx.setTransactionStatus(TransactionStatus.FAILED);
             transactionRepository.save(tx);
-            throw e;
+            throw e; // rollback
         }
     }
 
@@ -92,23 +93,23 @@ public class TransactionProcessorService {
 
         AccountEntity account = accountRepository.findByAccountNumberForUpdate(request.getAccountNumber())
                 .orElseThrow(() -> new RuntimeException("Account not found"));
+        if (account.getBalance().compareTo(request.getAmount()) < 0) {
+            throw new InsufficientFundsException("Insufficient funds");
+        }
         TransactionEntity tx = request.toEntity();
-
         try {
-
-
             BigDecimal amount = tx.getAmount();
-
-            if (account.getBalance().compareTo(amount) < 0) {
-                throw new RuntimeException("Insufficient funds");
-            }
-
             account.setBalance(account.getBalance().subtract(amount));
             accountRepository.save(account);
+            tx.setFromAccount(account);
+            tx.setTransactionId(randomStringHelper.randomAccountNumber(11));
             tx.setProcessedBy(processByUser(request.getUserId()));
             tx.setTransactionStatus(TransactionStatus.COMMITTED);
             transactionRepository.save(tx);
         } catch (Exception e) {
+            tx.setFromAccount(account);
+            tx.setTransactionId(randomStringHelper.randomAccountNumber(11));
+            tx.setProcessedBy(processByUser(request.getUserId()));
             tx.setTransactionStatus(TransactionStatus.FAILED);
             transactionRepository.save(tx);
             throw e;

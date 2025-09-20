@@ -4,6 +4,7 @@ package com.study.springbootassignment.controller;
 import com.study.springbootassignment.dto.transaction.*;
 import com.study.springbootassignment.dto.user.UserDto;
 import com.study.springbootassignment.dto.user.UserMapper;
+import com.study.springbootassignment.exception.InsufficientFundsException;
 import com.study.springbootassignment.service.TransactionService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -15,6 +16,7 @@ import org.springframework.web.bind.annotation.*;
 
 
 import java.util.Map;
+import java.util.concurrent.ExecutionException;
 
 @Slf4j
 @RestController
@@ -25,23 +27,31 @@ public class TransactionController {
 
     //    @PreAuthorize("hasAnyAuthority('CREATE_TRANSFER')")
     @PostMapping("transfer")
-    public ResponseEntity<CreateTransfer> transfer(@Valid @RequestBody CreateTransfer transfer) {
-        transactionService.processTransfer(transfer);
-        return ResponseEntity.ok(transfer);
+    public ResponseEntity<?> transfer(@Valid @RequestBody CreateTransfer transfer) {
+        try {
+            CreateTransfer result = transactionService.processTransfer(transfer).get(); // wait
+            return ResponseEntity.ok(result);
+        } catch (ExecutionException | InterruptedException e) {
+            throw new InsufficientFundsException(e.getCause().getMessage());
+        }
     }
 
     //    @PreAuthorize("hasAnyAuthority('CREATE_DEPOSIT')")
     @PostMapping("deposit")
-    public ResponseEntity<TransactionResponse> deposit(@Valid @RequestBody CreateDeposit deposit) {
-        TransactionResponse response = TransactionMapper.toDto(transactionService.processDeposit(deposit));
-        return ResponseEntity.ok(response);
+    public ResponseEntity<CreateDeposit> deposit(@Valid @RequestBody CreateDeposit deposit) {
+        transactionService.processDeposit(deposit);
+        return ResponseEntity.ok(deposit);
     }
 
     //    @PreAuthorize("hasAnyAuthority('CREATE_WITHDRAW')")
     @PostMapping("/withdraw")
-    public ResponseEntity<TransactionResponse> withdraw(@Valid @RequestBody CreateWithdraw withdraw) {
-        TransactionResponse response = TransactionMapper.toDto(transactionService.processWithdraw(withdraw));
-        return ResponseEntity.ok(response);
+    public ResponseEntity<?> withdraw(@Valid @RequestBody CreateWithdraw request) {
+        try {
+            CreateWithdraw result = transactionService.processWithdraw(request).get(); // wait
+            return ResponseEntity.ok(result);
+        } catch (ExecutionException | InterruptedException e) {
+           throw new InsufficientFundsException(e.getCause().getMessage());
+        }
     }
 
     @GetMapping("list")

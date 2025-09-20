@@ -9,11 +9,12 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.CompletableFuture;
 
 @Service
 public interface TransactionService {
-    void processTransfer(CreateTransfer request);
-    TransactionEntity processDeposit(CreateDeposit request);
-    TransactionEntity processWithdraw(CreateWithdraw request);
+    CompletableFuture<CreateTransfer> processTransfer(CreateTransfer request);
+    void processDeposit(CreateDeposit request);
+    CompletableFuture<CreateWithdraw> processWithdraw(CreateWithdraw request);
     Page<TransactionEntity> list(Map<String, String> params, int page, int size);
 }

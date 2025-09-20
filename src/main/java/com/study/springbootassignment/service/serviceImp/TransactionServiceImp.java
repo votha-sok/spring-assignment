@@ -8,7 +8,9 @@ import com.study.springbootassignment.entity.TransactionEntity;
 import com.study.springbootassignment.entity.UserEntity;
 import com.study.springbootassignment.repository.TransactionRepository;
 import com.study.springbootassignment.service.TransactionService;
+import com.study.springbootassignment.service.que.DepositQueueProcessor;
 import com.study.springbootassignment.service.que.TransferQueueProcessor;
+import com.study.springbootassignment.service.que.WithdrawQueueProcessor;
 import com.study.springbootassignment.util.RandomStringHelper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -19,45 +21,32 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.CompletableFuture;
 
 @Service
 @RequiredArgsConstructor
 public class TransactionServiceImp implements TransactionService {
     private final TransactionRepository transactionRepository;
-    private final TransferQueueManager transferQueueManager;
     private final TransactionProcessorService transactionProcessorService;
-    private final RandomStringHelper randomStringHelper;
+
 
     @Override
-    public void processTransfer(CreateTransfer request) {
+    public CompletableFuture<CreateTransfer> processTransfer(CreateTransfer request) {
         // Save transaction first (status = PENDING)
         TransferQueueProcessor queueManager = new TransferQueueProcessor(transactionProcessorService);
+        return queueManager.enqueue(request);
+    }
+
+    @Override
+    public void processDeposit(CreateDeposit request) {
+        DepositQueueProcessor queueManager = new DepositQueueProcessor(transactionProcessorService);
         queueManager.enqueue(request);
     }
 
     @Override
-    public TransactionEntity processDeposit(CreateDeposit request) {
-        TransactionEntity tx = request.toEntity();
-        TransactionEntity savedTx = transactionRepository.save(tx);
-
-        final Long txId = savedTx.getId();
-//        transferQueueManager.submit(request.getAccountNumber(), () -> {
-//            transactionProcessorService.handleDeposit(txId, request);
-//        });
-
-        return savedTx;
-    }
-
-    @Override
-    public TransactionEntity processWithdraw(CreateWithdraw request) {
-        TransactionEntity tx = request.toEntity();
-        TransactionEntity savedTx = transactionRepository.save(tx);
-
-        final Long txId = savedTx.getId();
-//        transferQueueManager.submit(request.getAccountNumber(), () -> {
-//            transactionProcessorService.handleWithdraw(txId, request);
-//        });
-        return savedTx;
+    public CompletableFuture<CreateWithdraw> processWithdraw(CreateWithdraw request) {
+        WithdrawQueueProcessor queueManager = new WithdrawQueueProcessor(transactionProcessorService);
+        return queueManager.enqueue(request);
     }
 
     @Override

@@ -6,6 +6,7 @@ import com.study.springbootassignment.util.TransactionType;
 import jakarta.validation.constraints.NotBlank;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
 
 import java.time.LocalDateTime;
@@ -13,6 +14,7 @@ import java.time.LocalDateTime;
 @EqualsAndHashCode(callSuper = true)
 @Data
 @SuperBuilder
+@NoArgsConstructor
 public class CreateWithdraw extends TransactionDto {
     @NotBlank(message = "Account number can not be null.")
     private String accountNumber;

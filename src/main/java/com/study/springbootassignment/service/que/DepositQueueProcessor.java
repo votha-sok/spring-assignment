@@ -42,7 +42,7 @@ public class DepositQueueProcessor {
                     // Call actual transactional handler
                     processorService.handleDeposit(request);
 
-                    System.out.println("✅ Processed transfer: " + request.getAccountNumber());
+                    System.out.println("✅ Processed withdraw: " + request.getAccountNumber());
                 } catch (Exception e) {
                     System.err.println("❌ Failed to process deposit: " + e.getMessage());
                     e.printStackTrace();

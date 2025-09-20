@@ -12,8 +12,16 @@ public class TransactionMapper {
                 .transactionId(transaction.getTransactionId())
                 .transactionType(transaction.getTransactionType().name())
                 .description(transaction.getDescription())
-                .fromAccount(AccountMapper.toDto(transaction.getFromAccount()))
-                .toAccount(AccountMapper.toDto(transaction.getToAccount()))
+                .fromAccount(
+                        transaction.getFromAccount() != null
+                                ? AccountMapper.toDto(transaction.getFromAccount())
+                                : null
+                )
+                .toAccount(
+                        transaction.getToAccount() != null
+                                ? AccountMapper.toDto(transaction.getToAccount())
+                                : null
+                )
                 .transactionStatus(transaction.getTransactionStatus().toString())
                 .processBy(UserMapper.toDto(transaction.getProcessedBy()))
                 .timestamp(transaction.getTimestamp())
