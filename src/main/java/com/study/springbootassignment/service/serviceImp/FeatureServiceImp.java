@@ -5,10 +5,7 @@ import com.study.springbootassignment.dto.feature.CreateFeaturePermission;
 import com.study.springbootassignment.dto.feature.FeaturePermissionResponse;
 import com.study.springbootassignment.dto.feature.FeatureResponse;
 import com.study.springbootassignment.dto.permission.PermissionDto;
-import com.study.springbootassignment.entity.FeatureEntity;
-import com.study.springbootassignment.entity.FeaturePermissionEntity;
-import com.study.springbootassignment.entity.PermissionEntity;
-import com.study.springbootassignment.entity.UserEntity;
+import com.study.springbootassignment.entity.*;
 import com.study.springbootassignment.repository.FeatureRepository;
 import com.study.springbootassignment.repository.PermissionRepository;
 import com.study.springbootassignment.repository.RoleRepository;
@@ -143,5 +140,11 @@ public class FeatureServiceImp implements FeatureService {
             item.setItems(null); // explicitly set null if no children
         }
         return item;
+    }
+
+    @Override
+    public List<FeatureEntity> findFeatureByRole(Long roleId) {
+        RoleEntity role = roleRepository.findById(roleId).orElseThrow(() -> new RuntimeException("Role not found"));
+        return role.getFeatures().stream().filter(f -> f.getParentId() != null).toList();
     }
 }

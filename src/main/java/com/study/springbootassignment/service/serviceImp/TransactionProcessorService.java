@@ -6,113 +6,116 @@ import com.study.springbootassignment.dto.transaction.CreateWithdraw;
 import com.study.springbootassignment.entity.AccountEntity;
 import com.study.springbootassignment.entity.TransactionEntity;
 import com.study.springbootassignment.entity.UserEntity;
-import com.study.springbootassignment.exception.InsufficientFundsException;
-import com.study.springbootassignment.jwt.UserContext;
 import com.study.springbootassignment.repository.AccountRepository;
 import com.study.springbootassignment.repository.TransactionRepository;
 import com.study.springbootassignment.repository.UserRepository;
+import com.study.springbootassignment.util.RandomStringHelper;
 import com.study.springbootassignment.util.TransactionStatus;
-import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
-import javax.security.auth.login.AccountNotFoundException;
 import java.math.BigDecimal;
-import java.time.LocalDateTime;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class TransactionProcessorService {
     private final TransactionRepository transactionRepository;
     private final AccountRepository accountRepository;
     private final UserRepository userRepository;
+    private final RandomStringHelper randomStringHelper;
 
+    // --- Transfer ---
     @Transactional
-    public void handleTransfer(Long id, CreateTransfer request) {
-        TransactionEntity tx = transactionRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Transaction not found: " + id));
+    public void handleTransfer(CreateTransfer request) {
+        AccountEntity from = accountRepository.findByAccountNumberForUpdate(request.getFromAccountNumber())
+                .orElseThrow(() -> new RuntimeException("From account not found"));
+        AccountEntity to = accountRepository.findByAccountNumberForUpdate(request.getToAccountNumber())
+                .orElseThrow(() -> new RuntimeException("To account not found"));
 
+        if (from.getBalance().compareTo(request.getAmount()) < 0) {
+            throw new RuntimeException("Insufficient funds");
+        }
+        TransactionEntity tx = request.toEntity();
+        BigDecimal amount = tx.getAmount();
         try {
-            AccountEntity fromAccount = accountRepository.findByAccountNumber(request.getFromAccountNumber())
-                    .orElseThrow(() -> new AccountNotFoundException("From account not found: " + request.getFromAccountNumber()));
-            AccountEntity toAccount = accountRepository.findByAccountNumber(request.getToAccountNumber())
-                    .orElseThrow(() -> new AccountNotFoundException("To account not found: " + request.getToAccountNumber()));
-
-            BigDecimal amount = tx.getAmount();
-
-            if (fromAccount.getBalance().compareTo(amount) < 0) {
-                throw new InsufficientFundsException(fromAccount.getAccountNumber(), amount, fromAccount.getBalance());
-            }
-
-            fromAccount.setBalance(fromAccount.getBalance().subtract(amount));
-            toAccount.setBalance(toAccount.getBalance().add(amount));
-
-            accountRepository.save(fromAccount);
-            accountRepository.save(toAccount);
-            tx.setFromAccount(fromAccount);
-            tx.setToAccount(toAccount);
-            updateTransactionStatus(tx, TransactionStatus.COMMITTED);
-
+            from.setBalance(from.getBalance().subtract(amount));
+            to.setBalance(to.getBalance().add(amount));
+            accountRepository.save(from);
+            accountRepository.save(to);
+            tx.setFromAccount(from);
+            tx.setToAccount(to);
+            tx.setTransactionId(randomStringHelper.randomAccountNumber(11));
+            tx.setProcessedBy(processByUser(request.getUserId()));
+            tx.setTransactionStatus(TransactionStatus.COMMITTED);
+            transactionRepository.save(tx);
         } catch (Exception e) {
-            updateTransactionStatus(tx, TransactionStatus.FAILED);
-            throw new RuntimeException("Transfer failed: " + e.getMessage(), e);
+            tx.setFromAccount(from);
+            tx.setToAccount(to);
+            tx.setTransactionId(randomStringHelper.randomAccountNumber(11));
+            tx.setProcessedBy(processByUser(request.getUserId()));
+            tx.setTransactionStatus(TransactionStatus.FAILED);
+            transactionRepository.save(tx);
+            throw new RuntimeException(e.getMessage()); // rollback
         }
     }
 
+    // --- Deposit ---
     @Transactional
-    public void handleDeposit(Long id, CreateDeposit request) {
-        TransactionEntity tx = transactionRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Transaction not found: " + id));
-
+    public void handleDeposit(CreateDeposit request) {
+        AccountEntity account = accountRepository.findByAccountNumberForUpdate(request.getAccountNumber())
+                .orElseThrow(() -> new RuntimeException("Account not found"));
+        TransactionEntity tx = request.toEntity();
         try {
-            AccountEntity account = accountRepository.findByAccountNumber(request.getAccountNumber())
-                    .orElseThrow(() -> new AccountNotFoundException("Account not found: " + request.getAccountNumber()));
-
-            BigDecimal amount = tx.getAmount();
-
-            account.setBalance(account.getBalance().add(amount));
+            account.setBalance(account.getBalance().add(tx.getAmount()));
             accountRepository.save(account);
             tx.setToAccount(account);
-            updateTransactionStatus(tx, TransactionStatus.COMMITTED);
-
+            tx.setTransactionId(randomStringHelper.randomAccountNumber(11));
+            tx.setProcessedBy(processByUser(request.getUserId()));
+            tx.setTransactionStatus(TransactionStatus.COMMITTED);
+            transactionRepository.save(tx);
         } catch (Exception e) {
-            updateTransactionStatus(tx, TransactionStatus.FAILED);
-            throw new RuntimeException("Deposit failed: " + e.getMessage(), e);
+            tx.setToAccount(account);
+            tx.setTransactionId(randomStringHelper.randomAccountNumber(11));
+            tx.setProcessedBy(processByUser(request.getUserId()));
+            tx.setTransactionStatus(TransactionStatus.FAILED);
+            transactionRepository.save(tx);
+            throw e;
         }
     }
 
+    // --- Withdraw ---
     @Transactional
-    public void handleWithdraw(Long id, CreateWithdraw request) {
-        TransactionEntity tx = transactionRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Transaction not found: " + id));
+    public void handleWithdraw(CreateWithdraw request) {
+
+        AccountEntity account = accountRepository.findByAccountNumberForUpdate(request.getAccountNumber())
+                .orElseThrow(() -> new RuntimeException("Account not found"));
+        TransactionEntity tx = request.toEntity();
 
         try {
-            AccountEntity account = accountRepository.findByAccountNumber(request.getAccountNumber())
-                    .orElseThrow(() -> new AccountNotFoundException("Account not found: " + request.getAccountNumber()));
+
 
             BigDecimal amount = tx.getAmount();
 
             if (account.getBalance().compareTo(amount) < 0) {
-                throw new InsufficientFundsException(account.getAccountNumber(), amount, account.getBalance());
+                throw new RuntimeException("Insufficient funds");
             }
 
             account.setBalance(account.getBalance().subtract(amount));
             accountRepository.save(account);
-            tx.setFromAccount(account);
-            updateTransactionStatus(tx, TransactionStatus.COMMITTED);
-
+            tx.setProcessedBy(processByUser(request.getUserId()));
+            tx.setTransactionStatus(TransactionStatus.COMMITTED);
+            transactionRepository.save(tx);
         } catch (Exception e) {
-            updateTransactionStatus(tx, TransactionStatus.FAILED);
-            throw new RuntimeException("Withdrawal failed: " + e.getMessage(), e);
+            tx.setTransactionStatus(TransactionStatus.FAILED);
+            transactionRepository.save(tx);
+            throw e;
         }
     }
 
-    private void updateTransactionStatus(TransactionEntity tx, TransactionStatus status) {
-        UserEntity processor = userRepository.findById(UserContext.getUserId())
-                .orElseThrow(() -> new RuntimeException("User not found: " + UserContext.getUserId()));
-        tx.setProcessedBy(processor);
-        tx.setTransactionStatus(status);
-        tx.setTimestamp(LocalDateTime.now());
-        transactionRepository.save(tx);
+    private UserEntity processByUser(Long userId) {
+        return userRepository.findById(userId).orElseThrow(() -> new RuntimeException("User not found"));
     }
 }

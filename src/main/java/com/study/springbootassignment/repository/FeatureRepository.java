@@ -8,4 +8,6 @@ import java.util.List;
 public interface FeatureRepository extends JpaRepository<FeatureEntity, Long> {
 
     List<FeatureEntity> findAllByParentId(Long parentId);
+
+    List<FeatureEntity> findAllByParentIdIsNotNull();
 }

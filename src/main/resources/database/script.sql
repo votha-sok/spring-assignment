@@ -10,6 +10,7 @@ DROP TABLE IF EXISTS public.users CASCADE;
 DROP TABLE IF EXISTS public.roles CASCADE;
 DROP TABLE IF EXISTS public.features CASCADE;
 DROP TABLE IF EXISTS public.permissions CASCADE;
+DROP TABLE IF EXISTS public.transactions CASCADE;
 
 -- Drop sequences if they exist
 DROP SEQUENCE IF EXISTS public.accounts_id_seq;

@@ -9,6 +9,8 @@ public class TransactionMapper {
         return TransactionResponse.builder()
                 .id(transaction.getId())
                 .amount(transaction.getAmount())
+                .transactionId(transaction.getTransactionId())
+                .transactionType(transaction.getTransactionType().name())
                 .description(transaction.getDescription())
                 .fromAccount(AccountMapper.toDto(transaction.getFromAccount()))
                 .toAccount(AccountMapper.toDto(transaction.getToAccount()))

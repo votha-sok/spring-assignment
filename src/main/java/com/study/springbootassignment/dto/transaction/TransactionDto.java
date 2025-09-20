@@ -18,4 +18,5 @@ public class TransactionDto {
     @DecimalMin(value = "0.01")
     private BigDecimal amount;
     private String description;
+    private Long userId;
 }

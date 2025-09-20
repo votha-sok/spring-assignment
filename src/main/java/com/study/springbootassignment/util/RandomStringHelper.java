@@ -5,7 +5,7 @@ import org.springframework.stereotype.Service;
 import java.util.concurrent.ThreadLocalRandom;
 
 @Service
-public class AccountHelper {
+public class RandomStringHelper {
     public String randomAccountNumber(int length) {
         if (length <= 0) {
             throw new IllegalArgumentException("Length must be positive");

@@ -19,6 +19,7 @@ public class CreateTransfer extends TransactionDto {
     private String fromAccountNumber;
     @NotBlank(message = "To Account number can not be null.")
     private String toAccountNumber;
+    private Long userId;
     public TransactionEntity toEntity() {
         TransactionEntity transaction = new TransactionEntity();
         transaction.setTransactionStatus(TransactionStatus.PENDING);

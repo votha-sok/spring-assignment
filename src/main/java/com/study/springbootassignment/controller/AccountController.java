@@ -7,7 +7,7 @@ import com.study.springbootassignment.entity.AccountEntity;
 import com.study.springbootassignment.jwt.UserContext;
 import com.study.springbootassignment.service.AccountService;
 import com.study.springbootassignment.service.UserService;
-import com.study.springbootassignment.util.AccountHelper;
+import com.study.springbootassignment.util.RandomStringHelper;
 import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -23,7 +23,7 @@ import java.util.Map;
 
 public class AccountController {
     private final AccountService accountService;
-    private final AccountHelper accountHelper;
+    private final RandomStringHelper accountHelper;
     private final UserService userService;
 
     @PostMapping

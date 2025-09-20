@@ -9,6 +9,7 @@ import com.study.springbootassignment.entity.RoleFeatureEntity;
 import com.study.springbootassignment.repository.FeatureRepository;
 import com.study.springbootassignment.repository.RoleRepository;
 import com.study.springbootassignment.service.RoleService;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
@@ -52,22 +53,45 @@ public class RoleServiceImp implements RoleService {
     }
 
 
+//    @Override
+//    public RoleEntity applyRoleFeature(CreateRoleFeature request) {
+//        RoleEntity roleEntity = roleRepository.findById(request.getRoleId())
+//                .orElseThrow(() -> new RuntimeException("Role  not found"));
+//        log.info("Applying Role Feature {}",roleEntity);
+//        roleEntity.getRoleFeature().clear();
+//        for (Long featureId : request.getFeatureIds()) {
+//            FeatureEntity feature = featureRepository.findById(featureId).orElseThrow(() -> new RuntimeException("Feature not found"));
+//            log.info("feature {}", feature);
+//            RoleFeatureEntity roleFeature = new RoleFeatureEntity();
+//            roleFeature.setFeature(feature);
+//            roleFeature.setRole(roleEntity);
+//            roleEntity.getRoleFeature().add(roleFeature);
+//        }
+//        return roleRepository.save(roleEntity);
+//    }
     @Override
+    @Transactional
     public RoleEntity applyRoleFeature(CreateRoleFeature request) {
         RoleEntity roleEntity = roleRepository.findById(request.getRoleId())
-                .orElseThrow(() -> new RuntimeException("Role  not found"));
+                .orElseThrow(() -> new RuntimeException("Role not found"));
 
-        for (Long featureId : request.getFeatureIds()) {
-            FeatureEntity feature = featureRepository.findById(featureId).orElseThrow(() -> new RuntimeException("Feature not found"));
-            log.info("feature {}", feature);
-            RoleFeatureEntity roleFeature = new RoleFeatureEntity();
-            roleFeature.setFeature(feature);
-            roleFeature.setRole(roleEntity);
-            roleEntity.getRoleFeature().add(roleFeature);
+        // clear old mappings
+        roleEntity.getRoleFeature().clear();
+
+        // fetch all features in one go
+        List<FeatureEntity> features = featureRepository.findAllById(request.getFeatureIds());
+        if (features.size() != request.getFeatureIds().size()) {
+            throw new RuntimeException("Some features not found");
+        }
+
+        for (FeatureEntity feature : features) {
+            RoleFeatureEntity rf = new RoleFeatureEntity();
+            rf.setRole(roleEntity);
+            rf.setFeature(feature);
+            roleEntity.getRoleFeature().add(rf);
         }
         return roleRepository.save(roleEntity);
     }
-
     @Override
     public Page<RoleEntity> list(Map<String, String> params, int page, int size) {
         Specification<RoleEntity> spec = SpecificationBuilder.buildFromParams(params, RoleEntity.class);

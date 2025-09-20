@@ -75,6 +75,7 @@ public class UserServiceImp implements UserService {
         UserEntity user = userRepository.findById(request.getUserId())
                 .orElseThrow(() -> new RuntimeException("User not found"));
 
+        user.getUserRoles().clear();
         for (Long roleId : request.getRoleIds()) {
             RoleEntity role = roleRepository.findById(roleId)
                     .orElseThrow(() -> new RuntimeException("Role not found: " + roleId));

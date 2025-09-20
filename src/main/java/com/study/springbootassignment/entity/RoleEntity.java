@@ -52,6 +52,7 @@ public class RoleEntity {
                 .map(RoleFeatureEntity::getFeature)
                 .collect(Collectors.toSet());
     }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;

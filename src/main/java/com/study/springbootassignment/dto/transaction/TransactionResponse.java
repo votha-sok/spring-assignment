@@ -13,6 +13,8 @@ import java.time.LocalDateTime;
 @SuperBuilder
 public class TransactionResponse extends TransactionDto {
     private Long id;
+    private String transactionId;
+    private String description;
     private AccountDto fromAccount;
     private AccountDto toAccount;
     private String transactionStatus;

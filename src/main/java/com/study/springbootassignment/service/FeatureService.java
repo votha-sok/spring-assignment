@@ -18,4 +18,5 @@ public interface FeatureService {
     FeatureEntity applyPermissions(CreateFeaturePermission request);
     List<FeaturePermissionResponse> getPermissions(Long id);
     List<FeatureResponse> getMenuByUser(Long userId);
+    List<FeatureEntity> findFeatureByRole(Long roleId);
 }

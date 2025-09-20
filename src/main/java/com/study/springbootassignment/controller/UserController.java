@@ -62,7 +62,7 @@ public class UserController {
         return ResponseEntity.ok(response);
     }
 
-    @PreAuthorize("hasAnyAuthority('APPLY_ROLE_USER')")
+//    @PreAuthorize("hasAnyAuthority('APPLY_ROLE_USER')")
     @PostMapping("/apply-role")
     public ResponseEntity<UserInfoDto> assignRole(@RequestBody @Valid ApplyUserRoleDto request) {
         UserEntity user = userService.applyUserRole(request);
