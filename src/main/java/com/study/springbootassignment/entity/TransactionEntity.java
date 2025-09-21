@@ -23,11 +23,11 @@ public class TransactionEntity {
     private String transactionId;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "from_account_id", nullable = true)
+    @JoinColumn(name = "from_account_id")
     private AccountEntity fromAccount;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "to_account_id", nullable = true)
+    @JoinColumn(name = "to_account_id")
     private AccountEntity toAccount;
 
     @Column(precision = 19, scale = 4, nullable = false)

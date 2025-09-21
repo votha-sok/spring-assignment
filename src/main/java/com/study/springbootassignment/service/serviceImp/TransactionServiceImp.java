@@ -31,20 +31,20 @@ public class TransactionServiceImp implements TransactionService {
 
 
     @Override
-    public CompletableFuture<CreateTransfer> processTransfer(CreateTransfer request) {
+    public CompletableFuture<TransactionEntity> processTransfer(CreateTransfer request) {
         // Save transaction first (status = PENDING)
         TransferQueueProcessor queueManager = new TransferQueueProcessor(transactionProcessorService);
         return queueManager.enqueue(request);
     }
 
     @Override
-    public void processDeposit(CreateDeposit request) {
+    public CompletableFuture<TransactionEntity> processDeposit(CreateDeposit request) {
         DepositQueueProcessor queueManager = new DepositQueueProcessor(transactionProcessorService);
-        queueManager.enqueue(request);
+        return queueManager.enqueue(request);
     }
 
     @Override
-    public CompletableFuture<CreateWithdraw> processWithdraw(CreateWithdraw request) {
+    public CompletableFuture<TransactionEntity> processWithdraw(CreateWithdraw request) {
         WithdrawQueueProcessor queueManager = new WithdrawQueueProcessor(transactionProcessorService);
         return queueManager.enqueue(request);
     }

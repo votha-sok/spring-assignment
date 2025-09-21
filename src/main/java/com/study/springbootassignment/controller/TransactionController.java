@@ -2,8 +2,7 @@ package com.study.springbootassignment.controller;
 
 
 import com.study.springbootassignment.dto.transaction.*;
-import com.study.springbootassignment.dto.user.UserDto;
-import com.study.springbootassignment.dto.user.UserMapper;
+import com.study.springbootassignment.entity.TransactionEntity;
 import com.study.springbootassignment.exception.InsufficientFundsException;
 import com.study.springbootassignment.service.TransactionService;
 import jakarta.validation.Valid;
@@ -11,7 +10,6 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 
@@ -27,10 +25,10 @@ public class TransactionController {
 
     //    @PreAuthorize("hasAnyAuthority('CREATE_TRANSFER')")
     @PostMapping("transfer")
-    public ResponseEntity<?> transfer(@Valid @RequestBody CreateTransfer transfer) {
+    public ResponseEntity<TransactionResponse> transfer(@Valid @RequestBody CreateTransfer transfer) {
         try {
-            CreateTransfer result = transactionService.processTransfer(transfer).get(); // wait
-            return ResponseEntity.ok(result);
+            TransactionEntity result = transactionService.processTransfer(transfer).get(); // wait
+            return ResponseEntity.ok(TransactionMapper.toDto(result));
         } catch (ExecutionException | InterruptedException e) {
             throw new InsufficientFundsException(e.getCause().getMessage());
         }
@@ -38,19 +36,23 @@ public class TransactionController {
 
     //    @PreAuthorize("hasAnyAuthority('CREATE_DEPOSIT')")
     @PostMapping("deposit")
-    public ResponseEntity<CreateDeposit> deposit(@Valid @RequestBody CreateDeposit deposit) {
-        transactionService.processDeposit(deposit);
-        return ResponseEntity.ok(deposit);
+    public ResponseEntity<TransactionResponse> deposit(@Valid @RequestBody CreateDeposit deposit) {
+        try {
+            TransactionEntity result = transactionService.processDeposit(deposit).get();
+            return ResponseEntity.ok(TransactionMapper.toDto(result));
+        } catch (Exception e) {
+            throw new RuntimeException(e.getCause().getMessage());
+        }
     }
 
     //    @PreAuthorize("hasAnyAuthority('CREATE_WITHDRAW')")
     @PostMapping("/withdraw")
-    public ResponseEntity<?> withdraw(@Valid @RequestBody CreateWithdraw request) {
+    public ResponseEntity<TransactionResponse> withdraw(@Valid @RequestBody CreateWithdraw request) {
         try {
-            CreateWithdraw result = transactionService.processWithdraw(request).get(); // wait
-            return ResponseEntity.ok(result);
+            TransactionEntity result = transactionService.processWithdraw(request).get(); // wait
+            return ResponseEntity.ok(TransactionMapper.toDto(result));
         } catch (ExecutionException | InterruptedException e) {
-           throw new InsufficientFundsException(e.getCause().getMessage());
+            throw new InsufficientFundsException(e.getCause().getMessage());
         }
     }
 

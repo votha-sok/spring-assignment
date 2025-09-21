@@ -23,6 +23,7 @@ import java.math.BigDecimal;
 @Service
 @RequiredArgsConstructor
 public class TransactionProcessorService {
+    private final TransactionLogService transactionLogService;
     private final TransactionRepository transactionRepository;
     private final AccountRepository accountRepository;
     private final UserRepository userRepository;
@@ -30,18 +31,18 @@ public class TransactionProcessorService {
 
     // --- Transfer ---
     @Transactional
-    public void handleTransfer(CreateTransfer request) {
+    public TransactionEntity handleTransfer(CreateTransfer request) {
         AccountEntity from = accountRepository.findByAccountNumberForUpdate(request.getFromAccountNumber())
                 .orElseThrow(() -> new RuntimeException("From account not found"));
         AccountEntity to = accountRepository.findByAccountNumberForUpdate(request.getToAccountNumber())
                 .orElseThrow(() -> new RuntimeException("To account not found"));
 
-        if (from.getBalance().compareTo(request.getAmount()) < 0) {
-            throw new InsufficientFundsException("Insufficient funds");
-        }
         TransactionEntity tx = request.toEntity();
         BigDecimal amount = tx.getAmount();
         try {
+            if (from.getBalance().compareTo(request.getAmount()) < 0) {
+                throw new InsufficientFundsException("Insufficient funds");
+            }
             from.setBalance(from.getBalance().subtract(amount));
             to.setBalance(to.getBalance().add(amount));
             accountRepository.save(from);
@@ -51,21 +52,21 @@ public class TransactionProcessorService {
             tx.setTransactionId(randomStringHelper.randomAccountNumber(11));
             tx.setProcessedBy(processByUser(request.getUserId()));
             tx.setTransactionStatus(TransactionStatus.COMMITTED);
-            transactionRepository.save(tx);
+            return transactionRepository.save(tx);
         } catch (Exception e) {
             tx.setFromAccount(from);
             tx.setToAccount(to);
             tx.setTransactionId(randomStringHelper.randomAccountNumber(11));
             tx.setProcessedBy(processByUser(request.getUserId()));
             tx.setTransactionStatus(TransactionStatus.FAILED);
-            transactionRepository.save(tx);
+            transactionLogService.saveFailedTransaction(tx);
             throw e; // rollback
         }
     }
 
     // --- Deposit ---
     @Transactional
-    public void handleDeposit(CreateDeposit request) {
+    public TransactionEntity handleDeposit(CreateDeposit request) {
         AccountEntity account = accountRepository.findByAccountNumberForUpdate(request.getAccountNumber())
                 .orElseThrow(() -> new RuntimeException("Account not found"));
         TransactionEntity tx = request.toEntity();
@@ -76,28 +77,29 @@ public class TransactionProcessorService {
             tx.setTransactionId(randomStringHelper.randomAccountNumber(11));
             tx.setProcessedBy(processByUser(request.getUserId()));
             tx.setTransactionStatus(TransactionStatus.COMMITTED);
-            transactionRepository.save(tx);
+            return transactionRepository.save(tx);
         } catch (Exception e) {
             tx.setToAccount(account);
             tx.setTransactionId(randomStringHelper.randomAccountNumber(11));
             tx.setProcessedBy(processByUser(request.getUserId()));
             tx.setTransactionStatus(TransactionStatus.FAILED);
-            transactionRepository.save(tx);
+            transactionLogService.saveFailedTransaction(tx);
             throw e; // rollback
         }
     }
 
     // --- Withdraw ---
     @Transactional
-    public void handleWithdraw(CreateWithdraw request) {
+    public TransactionEntity handleWithdraw(CreateWithdraw request) {
 
         AccountEntity account = accountRepository.findByAccountNumberForUpdate(request.getAccountNumber())
                 .orElseThrow(() -> new RuntimeException("Account not found"));
-        if (account.getBalance().compareTo(request.getAmount()) < 0) {
-            throw new InsufficientFundsException("Insufficient funds");
-        }
+
         TransactionEntity tx = request.toEntity();
         try {
+            if (account.getBalance().compareTo(request.getAmount()) < 0) {
+                throw new InsufficientFundsException("Insufficient funds");
+            }
             BigDecimal amount = tx.getAmount();
             account.setBalance(account.getBalance().subtract(amount));
             accountRepository.save(account);
@@ -105,13 +107,13 @@ public class TransactionProcessorService {
             tx.setTransactionId(randomStringHelper.randomAccountNumber(11));
             tx.setProcessedBy(processByUser(request.getUserId()));
             tx.setTransactionStatus(TransactionStatus.COMMITTED);
-            transactionRepository.save(tx);
+            return transactionRepository.save(tx);
         } catch (Exception e) {
             tx.setFromAccount(account);
             tx.setTransactionId(randomStringHelper.randomAccountNumber(11));
             tx.setProcessedBy(processByUser(request.getUserId()));
             tx.setTransactionStatus(TransactionStatus.FAILED);
-            transactionRepository.save(tx);
+            transactionLogService.saveFailedTransaction(tx);
             throw e;
         }
     }

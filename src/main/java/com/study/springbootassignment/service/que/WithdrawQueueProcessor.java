@@ -1,7 +1,7 @@
 package com.study.springbootassignment.service.que;
 
-import com.study.springbootassignment.dto.transaction.CreateDeposit;
 import com.study.springbootassignment.dto.transaction.CreateWithdraw;
+import com.study.springbootassignment.entity.TransactionEntity;
 import com.study.springbootassignment.jwt.UserContext;
 import com.study.springbootassignment.service.serviceImp.TransactionProcessorService;
 import lombok.extern.slf4j.Slf4j;
@@ -10,48 +10,65 @@ import org.springframework.stereotype.Component;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.TimeUnit;
 
-@Slf4j
 @Component
+@Slf4j
 public class WithdrawQueueProcessor {
 
     private final TransactionProcessorService processorService;
-
-    private final BlockingQueue<CreateWithdraw> withdrawQueue = new LinkedBlockingQueue<>();
+    private final BlockingQueue<WithdrawTask> withdrawQueue = new LinkedBlockingQueue<>();
 
     public WithdrawQueueProcessor(TransactionProcessorService processorService) {
         this.processorService = processorService;
         startWorker();
     }
 
-    // Enqueue transfer request
-//    public void enqueue(CreateWithdraw request) {
-//        request.setUserId(UserContext.getUserId());
-//        withdrawQueue.add(request);
-//        System.out.println("📝 Queued withdraw to " + request.getAccountNumber() +
-//                " amount: " + request.getAmount());
-//    }
-    public CompletableFuture<CreateWithdraw> enqueue(CreateWithdraw request) {
-        return CompletableFuture.supplyAsync(() -> {
-            processorService.handleWithdraw(request);
-            return request;
-        });
+    // Wrapper: request + future
+        private record WithdrawTask(CreateWithdraw request, CompletableFuture<TransactionEntity> future) {
     }
-    // Worker thread
+
+    public CompletableFuture<TransactionEntity> enqueue(CreateWithdraw request) {
+        request.setUserId(UserContext.getUserId());
+        CompletableFuture<TransactionEntity> future = new CompletableFuture<>();
+        try {
+            withdrawQueue.put(new WithdrawTask(request, future));
+        } catch (InterruptedException e) {
+            future.completeExceptionally(e);
+        }
+        return future;
+    }
+
     private void startWorker() {
         Thread worker = new Thread(() -> {
+            WithdrawTask task = null;
             while (true) {
                 try {
-                    CreateWithdraw request = withdrawQueue.take(); // blocks
-                    System.out.println("⚡ Processing withdraw : " + request.getAccountNumber() );
+                    task = withdrawQueue.take(); // blocks if empty
+                    CreateWithdraw req = task.request;
 
-                    // Call actual transactional handler
-                    processorService.handleWithdraw(request);
+                    log.info("⚡ Processing withdraw: {}", req.getAccountNumber());
 
-                    System.out.println("✅ Processed withdraw: " + request.getAccountNumber());
+                    // Delay before processing (if desired)
+                    TimeUnit.SECONDS.sleep(3);
+
+                    TransactionEntity result = processorService.handleWithdraw(req);
+
+                    task.future.complete(result); // ✅ success
+                    log.info("✅ Processed withdraw: {}", req.getAccountNumber());
+
                 } catch (Exception e) {
-                    System.err.println("❌ Failed to process withdraw: " + e.getMessage());
-                    e.printStackTrace();
+                    log.error("❌ Failed to process withdraw", e);
+                    // ✅ complete the future with exception
+                    if (e instanceof RuntimeException re) {
+                        // If you want the same exception type propagated
+                        assert task != null;
+                        task.future.completeExceptionally(re);
+                    } else {
+                        assert task != null;
+                        task.future.completeExceptionally(
+                                new RuntimeException("Withdraw failed", e));
+                    }
                 }
             }
         });

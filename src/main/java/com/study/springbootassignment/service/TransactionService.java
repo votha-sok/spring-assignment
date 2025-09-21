@@ -13,8 +13,8 @@ import java.util.concurrent.CompletableFuture;
 
 @Service
 public interface TransactionService {
-    CompletableFuture<CreateTransfer> processTransfer(CreateTransfer request);
-    void processDeposit(CreateDeposit request);
-    CompletableFuture<CreateWithdraw> processWithdraw(CreateWithdraw request);
+    CompletableFuture<TransactionEntity> processTransfer(CreateTransfer request);
+    CompletableFuture<TransactionEntity> processDeposit(CreateDeposit request);
+    CompletableFuture<TransactionEntity> processWithdraw(CreateWithdraw request);
     Page<TransactionEntity> list(Map<String, String> params, int page, int size);
 }
