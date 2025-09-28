@@ -69,4 +69,6 @@ public class FeatureEntity {
     @LastModifiedDate
     @Column(name = "updated_date")
     private LocalDateTime updatedDate;
+
+
 }

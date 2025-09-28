@@ -2,8 +2,11 @@ package com.study.springbootassignment.service;
 
 
 
+import com.study.springbootassignment.dto.role.ApplyPermissionDto;
 import com.study.springbootassignment.dto.role.CreateRoleFeature;
+import com.study.springbootassignment.entity.FeatureEntity;
 import com.study.springbootassignment.entity.RoleEntity;
+import jakarta.transaction.Transactional;
 import org.springframework.data.domain.Page;
 
 import java.util.List;
@@ -15,6 +18,7 @@ public interface RoleService {
     RoleEntity save(RoleEntity role);
     RoleEntity update(Long id ,RoleEntity role);
     RoleEntity applyRoleFeature(CreateRoleFeature request);
+    void applyFeaturePermission(List<ApplyPermissionDto> requests);
     Page<RoleEntity> list(Map<String, String> params, int page, int size);
 
 }

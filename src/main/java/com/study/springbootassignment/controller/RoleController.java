@@ -22,13 +22,13 @@ public class RoleController {
 
     private final RoleService roleService;
 
-//    @PreAuthorize("hasAnyAuthority('VIEW_ROLE')")
+    //    @PreAuthorize("hasAnyAuthority('VIEW_ROLE')")
     @GetMapping
     public List<RoleDto> findAll() {
         return roleService.findAll().stream().map(RoleMapper::toDto).toList();
     }
 
-//    @PreAuthorize("hasAnyAuthority('VIEW_ROLE')")
+    //    @PreAuthorize("hasAnyAuthority('VIEW_ROLE')")
     @GetMapping("/{id}")
     public ResponseEntity<RoleFeaturePermissionDto> getById(@PathVariable Long id) {
         RoleFeaturePermissionDto response = RoleMapper.toDetailDto(roleService.findById(id));
@@ -36,25 +36,32 @@ public class RoleController {
     }
 
 
-//    @PreAuthorize("hasAnyAuthority('CREATE_ROLE')")
+    //    @PreAuthorize("hasAnyAuthority('CREATE_ROLE')")
     @PostMapping
     public RoleDto save(@RequestBody CreateRoleDto request) {
         return RoleMapper.toDto(roleService.save(request.toEntity()));
     }
 
-//    @PreAuthorize("hasAnyAuthority('UPDATE_ROLE')")
+    //    @PreAuthorize("hasAnyAuthority('UPDATE_ROLE')")
     @PostMapping("/{id}")
     public RoleDto update(@PathVariable Long id, @Valid @RequestBody CreateRoleDto role) {
         return RoleMapper.toDto(roleService.update(id, role.toEntity()));
     }
 
-//    @PreAuthorize("hasAnyAuthority('APPLY_FEATURE_ROLE')")
+    //    @PreAuthorize("hasAnyAuthority('APPLY_FEATURE_ROLE')")
     @PostMapping("/apply-feature")
-    public RoleDto update(@RequestBody CreateRoleFeature request) {
+    public RoleDto applyFeature(@RequestBody CreateRoleFeature request) {
         return RoleMapper.toDto(roleService.applyRoleFeature(request));
     }
 
-//    @PreAuthorize("hasAnyAuthority('VIEW_ROLE')")
+    //    @PreAuthorize("hasAnyAuthority('APPLY_FEATURE_ROLE')")
+    @PostMapping("/apply-permission")
+    public ResponseEntity<?> applyPermission(@Valid @RequestBody List<ApplyPermissionDto> request) {
+        roleService.applyFeaturePermission(request);
+        return ResponseEntity.ok(request);
+    }
+
+    //    @PreAuthorize("hasAnyAuthority('VIEW_ROLE')")
     @GetMapping("/list")
     public Page<RoleDto> list(@RequestParam
                               Map<String, String> params,

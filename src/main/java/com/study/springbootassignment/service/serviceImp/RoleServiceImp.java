@@ -2,11 +2,11 @@ package com.study.springbootassignment.service.serviceImp;
 
 
 import com.study.springbootassignment.configuration.SpecificationBuilder;
+import com.study.springbootassignment.dto.role.ApplyPermissionDto;
 import com.study.springbootassignment.dto.role.CreateRoleFeature;
-import com.study.springbootassignment.entity.FeatureEntity;
-import com.study.springbootassignment.entity.RoleEntity;
-import com.study.springbootassignment.entity.RoleFeatureEntity;
+import com.study.springbootassignment.entity.*;
 import com.study.springbootassignment.repository.FeatureRepository;
+import com.study.springbootassignment.repository.PermissionRepository;
 import com.study.springbootassignment.repository.RoleRepository;
 import com.study.springbootassignment.service.RoleService;
 import jakarta.transaction.Transactional;
@@ -28,6 +28,7 @@ public class RoleServiceImp implements RoleService {
 
     private final RoleRepository roleRepository;
     private final FeatureRepository featureRepository;
+    private final PermissionRepository permissionRepository;
 
     @Override
     public RoleEntity findById(Long id) {
@@ -92,6 +93,35 @@ public class RoleServiceImp implements RoleService {
         }
         return roleRepository.save(roleEntity);
     }
+
+    @Transactional
+    @Override
+    public void applyFeaturePermission(List<ApplyPermissionDto> requests) {
+        for (ApplyPermissionDto request : requests) {
+            log.info("request: {}", request);
+            FeatureEntity featureEntity = featureRepository.findById(request.getFeatureId())
+                    .orElseThrow(() -> new RuntimeException("Feature not found: " + request.getFeatureId()));
+
+            // Clear old mappings
+            featureEntity.getFeaturePermission().clear();
+
+            // Rebuild associations
+            for (Long permissionId : request.getPermissionIds()) {
+                log.info("permissionId: {}", permissionId);
+                PermissionEntity permission = permissionRepository.findById(permissionId).orElseThrow(() -> new RuntimeException("Permission not found: " + permissionId));
+                FeaturePermissionEntity fp = new FeaturePermissionEntity();
+                fp.setFeature(featureEntity);
+                fp.setPermission(permission);
+                fp.setStatus(true);
+                featureEntity.getFeaturePermission().add(fp);
+            }
+
+            featureRepository.save(featureEntity);
+        }
+    }
+
+
+
     @Override
     public Page<RoleEntity> list(Map<String, String> params, int page, int size) {
         Specification<RoleEntity> spec = SpecificationBuilder.buildFromParams(params, RoleEntity.class);
