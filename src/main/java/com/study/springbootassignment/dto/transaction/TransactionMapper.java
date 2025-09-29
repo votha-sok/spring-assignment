@@ -14,12 +14,12 @@ public class TransactionMapper {
                 .description(transaction.getDescription())
                 .fromAccount(
                         transaction.getFromAccount() != null
-                                ? AccountMapper.toDto(transaction.getFromAccount())
+                                ? AccountMapper.toTransaction(transaction.getFromAccount())
                                 : null
                 )
                 .toAccount(
                         transaction.getToAccount() != null
-                                ? AccountMapper.toDto(transaction.getToAccount())
+                                ? AccountMapper.toTransaction(transaction.getToAccount())
                                 : null
                 )
                 .transactionStatus(transaction.getTransactionStatus().toString())

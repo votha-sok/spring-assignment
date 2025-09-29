@@ -14,9 +14,7 @@ import com.study.springbootassignment.service.FeatureService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -98,47 +96,50 @@ public class FeatureServiceImp implements FeatureService {
                 .orElseThrow(() -> new RuntimeException("User not found"));
 
         Set<FeatureEntity> userFeatures;
-
-        if (user.getAdmin()) {
-            // Return all top-level features for super admin
+        if (Boolean.TRUE.equals(user.getAdmin())) {
             userFeatures = new HashSet<>(featureRepository.findAll());
         } else {
-            // Collect all features from user roles
             userFeatures = user.getRoles().stream()
                     .flatMap(role -> role.getFeatures().stream())
                     .collect(Collectors.toSet());
         }
 
-        // Only top-level features
+        // Pre-group features by parentId to avoid N+1 queries
+        Map<Long, List<FeatureEntity>> childrenMap = userFeatures.stream()
+                .filter(f -> f.getParentId() != null)
+                .collect(Collectors.groupingBy(FeatureEntity::getParentId));
+
+        // Only root features
         return userFeatures.stream()
                 .filter(f -> f.getParentId() == null)
-                .map(this::toMenuItem)
+                .sorted(Comparator.comparingInt(FeatureEntity::getMenuOrder))
+                .map(f -> toMenuItem(f, childrenMap))
                 .collect(Collectors.toList());
     }
 
-    private FeatureResponse toMenuItem(FeatureEntity feature) {
+    private FeatureResponse toMenuItem(FeatureEntity feature, Map<Long, List<FeatureEntity>> childrenMap) {
         FeatureResponse item = new FeatureResponse();
         item.setId(feature.getId());
         item.setTitle(feature.getTitle());
         item.setIcon(feature.getIcon());
         item.setMenuOrder(feature.getMenuOrder());
 
-        // If you only use one routerLink per feature, take the first
         if (feature.getRouterLink() != null && !feature.getRouterLink().isEmpty()) {
             item.setRouterLink(feature.getRouterLink());
         }
 
-        // Map children recursively
-        List<FeatureEntity> children = featureRepository.findAllByParentId(feature.getId());
+        List<FeatureEntity> children = childrenMap.get(feature.getId());
         if (children != null && !children.isEmpty()) {
             List<FeatureResponse> items = children.stream()
-                    .map(this::toMenuItem)
+                    .sorted(Comparator.comparingInt(FeatureEntity::getMenuOrder))
+                    .map(child -> toMenuItem(child, childrenMap))
                     .collect(Collectors.toList());
             item.setRouterLink(null);
             item.setItems(items);
         } else {
-            item.setItems(null); // explicitly set null if no children
+            item.setItems(null);
         }
+
         return item;
     }
 

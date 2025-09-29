@@ -50,7 +50,7 @@ public class WithdrawQueueProcessor {
                     log.info("⚡ Processing withdraw: {}", req.getAccountNumber());
 
                     // Delay before processing (if desired)
-                    TimeUnit.SECONDS.sleep(3);
+//                    TimeUnit.SECONDS.sleep(3);
 
                     TransactionEntity result = processorService.handleWithdraw(req);
 

@@ -53,7 +53,7 @@ public class TransferQueueProcessor {
                             " -> " + req.getToAccountNumber());
 
                     // Delay before processing (if desired)
-                    TimeUnit.SECONDS.sleep(5);
+//                    TimeUnit.SECONDS.sleep(5);
 
                     TransactionEntity result = processorService.handleTransfer(req);
 

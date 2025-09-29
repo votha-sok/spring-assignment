@@ -94,6 +94,12 @@ public class UserMapper {
     }
 
     public static UserDto toDto(UserEntity user) {
-        return new UserDto(user.getId(), user.getUserName(), user.getEmail(), user.getPhone(), user.getAdmin());
+        return UserDto.builder()
+                .id(user.getId())
+                .userName(user.getUserName())
+                .email(user.getEmail())
+                .phone(user.getPhone())
+                .admin(user.getAdmin())
+                .build();
     }
 }

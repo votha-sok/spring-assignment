@@ -54,7 +54,7 @@ public class DepositQueueProcessor {
                     log.info("⚡ Processing deposit: {}", req.getAccountNumber());
 
                     // Delay before processing (if desired)
-                    TimeUnit.SECONDS.sleep(0);
+//                    TimeUnit.SECONDS.sleep(0);
 
                     TransactionEntity result = processorService.handleDeposit(req);
 

@@ -60,7 +60,7 @@ public class FeatureController {
         return featureService.getPermissions(id);
     }
 
-//    @PreAuthorize("hasAnyAuthority('ROLE_ADMIN')")
+    //    @PreAuthorize("hasAnyAuthority('ROLE_ADMIN')")
     @GetMapping("user-feature")
     public List<FeatureResponse> getFeature() {
         Long userId = UserContext.getUserId();
@@ -68,7 +68,7 @@ public class FeatureController {
         return featureService.getMenuByUser(userId);
     }
 
-    @PreAuthorize("hasAnyAuthority('ROLE_ADMIN')")
+    @PreAuthorize("hasAnyAuthority('ROLE_ADMIN','APPLY_ROLE')")
     @GetMapping("menu-permission")
     public ResponseEntity<List<MenuPermissionResponse>> menuPermission() {
         List<FeatureEntity> allFeatures = featureService.findAll();
@@ -79,7 +79,7 @@ public class FeatureController {
         return ResponseEntity.ok(rootMenus);
     }
 
-    @PreAuthorize("hasAnyAuthority('ROLE_ADMIN')")
+    @PreAuthorize("hasAnyAuthority('ROLE_ADMIN', 'APPLY_ROLE')")
     @GetMapping("feature-permission/{id}")
     public ResponseEntity<List<FeaturePermissionResponse>> featurePermission(@PathVariable Long id) {
         List<FeaturePermissionResponse> response = featureService.findFeatureByRole(id).stream().map(FeatureMapper::toFeaturePermissionDto).toList();

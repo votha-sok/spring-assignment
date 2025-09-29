@@ -1,6 +1,5 @@
 package com.study.springbootassignment.jwt;
 
-import com.study.springbootassignment.configuration.CustomAccessDeniedHandler;
 import com.study.springbootassignment.entity.UserEntity;
 import com.study.springbootassignment.repository.RoleFeaturePermissionRepository;
 import com.study.springbootassignment.repository.UserRepository;
@@ -31,15 +30,8 @@ public class UserDetailService implements UserDetailsService {
 
             UserEntity user = userRepository.findByEmail((email))
                     .orElseThrow(() -> new UsernameNotFoundException("User not found"));
-
             Set<GrantedAuthority> authorities = new HashSet<>();
             user.getUserRoles().forEach(userRole -> {
-//                userRole.getRole().getFeatures().forEach(feature -> {
-//                    feature.getPermissions().forEach(permission -> {
-//                        String authority = permission.getFunctionName().toUpperCase() + "_" + feature.getTitle().toUpperCase();
-//                        authorities.add(new SimpleGrantedAuthority(authority));
-//                    });
-//                });
                 userRole.getRole().getRoleFeaturePermissions().forEach(rfp -> {
                     String authority = rfp.getPermission().getFunctionName().toUpperCase() + "_" + rfp.getFeature().getTitle().toUpperCase();
                     authorities.add(new SimpleGrantedAuthority(authority));

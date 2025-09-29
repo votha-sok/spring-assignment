@@ -46,7 +46,7 @@ public class AccountController {
         AccountResponse response = AccountMapper.toDto(updateAccount);
         return ResponseEntity.ok(response);
     }
-    @PreAuthorize("hasAnyAuthority('VIEW_ACCOUNT','ROLE_ADMIN')")
+//    @PreAuthorize("hasAnyAuthority('VIEW_ACCOUNT','ROLE_ADMIN')")
     @GetMapping
     public ResponseEntity<List<AccountResponse>> getAllAccounts() {
         List<AccountResponse> list = accountService.findAll().stream().map(AccountMapper::toDto).toList();

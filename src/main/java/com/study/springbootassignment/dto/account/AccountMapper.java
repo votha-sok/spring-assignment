@@ -19,5 +19,13 @@ public class AccountMapper {
                 .createdDate(account.getCreatedDate())
                 .build();
     }
-
+    public static AccountResponse toTransaction(AccountEntity account) {
+        return AccountResponse.builder()
+                .id(account.getId())
+                .accountHolderName(account.getAccountHolderName())
+                .accountHolderEmail(account.getAccountHolderEmail())
+                .accountHolderPhone(account.getAccountHolderPhone())
+                .accountNumber(account.getAccountNumber())
+                .build();
+    }
 }
