@@ -15,7 +15,7 @@ public class SpecificationBuilder {
     public static <T> Specification<T> buildFromParams(Map<String, String> params, Class<T> entityClass) {
         return (root, query, cb) -> {
             List<Predicate> predicates = new ArrayList<>();
-            query.distinct(true); // to handle @OneToMany duplicates
+            query.distinct(true); // avoid duplicates from joins
 
             for (Map.Entry<String, String> entry : params.entrySet()) {
                 String key = entry.getKey();
@@ -25,7 +25,7 @@ public class SpecificationBuilder {
                 try {
                     Path<?> path = buildPath(root, key);
                     Class<?> fieldType = getFieldType(entityClass, key);
-
+                    log.info("fieldType: {}", fieldType);
                     if (fieldType == null) {
                         log.info("Field not found: {}", key);
                         continue;
@@ -46,7 +46,10 @@ public class SpecificationBuilder {
                         @SuppressWarnings("unchecked")
                         Class<? extends Enum> enumType = (Class<? extends Enum>) fieldType;
                         try {
-                            Enum<?> enumValue = Enum.valueOf(enumType, rawValue.toUpperCase());
+                            Enum<?> enumValue = Arrays.stream(enumType.getEnumConstants())
+                                    .filter(e -> e.name().equalsIgnoreCase(rawValue))
+                                    .findFirst()
+                                    .orElseThrow(() -> new IllegalArgumentException("Invalid enum value"));
                             predicates.add(cb.equal(path, enumValue));
                         } catch (IllegalArgumentException ex) {
                             log.warn("Invalid enum value for {}: {}", key, rawValue);
@@ -64,11 +67,24 @@ public class SpecificationBuilder {
         };
     }
 
+    /**
+     * Build path supporting nested relationships.
+     * Handles joins automatically for collections (@OneToMany, @ManyToMany).
+     */
     private static Path<?> buildPath(From<?, ?> root, String key) {
         String[] parts = key.split("\\.");
         Path<?> path = root;
-        for (String part : parts) {
+        From<?, ?> from = root;
+
+        for (int i = 0; i < parts.length; i++) {
+            String part = parts[i];
             path = path.get(part);
+
+            // If the current part is a collection -> join it
+            if (Collection.class.isAssignableFrom(path.getJavaType())) {
+                from = from.join(part, JoinType.LEFT);
+                path = from;
+            }
         }
         return path;
     }
@@ -84,7 +100,6 @@ public class SpecificationBuilder {
                 if (field == null) return null;
                 current = field.getType();
             }
-
             return field.getType();
         } catch (Exception e) {
             log.warn("Failed to get type for {}: {}", key, e.getMessage());
