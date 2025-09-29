@@ -60,7 +60,7 @@ public class FeatureController {
         return featureService.getPermissions(id);
     }
 
-    @PreAuthorize("hasAnyAuthority('ROLE_ADMIN')")
+//    @PreAuthorize("hasAnyAuthority('ROLE_ADMIN')")
     @GetMapping("user-feature")
     public List<FeatureResponse> getFeature() {
         Long userId = UserContext.getUserId();

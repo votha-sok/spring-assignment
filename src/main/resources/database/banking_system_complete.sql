@@ -273,13 +273,6 @@ VALUES
     (1, 'votha7777@gmail.com', 'SOK VOTHA', '015600022', '9294275253', 'SAVINGS', 0.00, '2025-09-15 14:26:51.291256', '3890823', true, '2025-09-28 12:52:02.836964', 1),
     (2, 'rotanak@gmail.com', 'ROTHANAK', '0709809000', '2497909593', 'SAVINGS', 3400.00, '2025-09-19 15:21:02.930032', NULL, true, '2025-09-21 13:54:44.840182', 1);
 
--- Insert sample transactions
-INSERT INTO public.transactions (id, amount, description, timestamp, transaction_id, transaction_status, transaction_type, from_account_id, processed_by_id, to_account_id)
-VALUES
-    (1, 1000.0000, 'Initial deposit', '2025-09-29 10:00:00.000000', 'TXN001', 'COMMITTED', 'DEPOSIT', NULL, 1, 1),
-    (2, 500.0000, 'Fund transfer', '2025-09-29 10:15:00.000000', 'TXN002', 'COMMITTED', 'TRANSFER', 1, 1, 2),
-    (3, 200.0000, 'Cash withdrawal', '2025-09-29 10:30:00.000000', 'TXN003', 'COMMITTED', 'WITHDRAW', 2, 1, NULL);
-
 -- Update sequence values to continue from the correct positions
 SELECT setval('public.accounts_id_seq', 2, true);
 SELECT setval('public.feature_permissions_id_seq', 24, true);

@@ -38,6 +38,11 @@ public class RoleEntity {
     @ToString.Exclude
     @EqualsAndHashCode.Exclude
     private Set<RoleFeatureEntity> roleFeature = new HashSet<>();
+
+    @OneToMany(mappedBy = "role", cascade = CascadeType.ALL, orphanRemoval = true)
+    @ToString.Exclude
+    @EqualsAndHashCode.Exclude
+    private Set<RoleFeaturePermissionEntity> roleFeaturePermission = new HashSet<>();
     // 🔹 Auditing fields
     @CreatedDate
     @Column(name = "created_date", nullable = false, updatable = false)
@@ -52,7 +57,9 @@ public class RoleEntity {
                 .map(RoleFeatureEntity::getFeature)
                 .collect(Collectors.toSet());
     }
-
+    public Set<RoleFeaturePermissionEntity> getRoleFeaturePermissions() {
+        return new HashSet<>(roleFeaturePermission);
+    }
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;

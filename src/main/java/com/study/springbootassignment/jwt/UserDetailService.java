@@ -2,6 +2,7 @@ package com.study.springbootassignment.jwt;
 
 import com.study.springbootassignment.configuration.CustomAccessDeniedHandler;
 import com.study.springbootassignment.entity.UserEntity;
+import com.study.springbootassignment.repository.RoleFeaturePermissionRepository;
 import com.study.springbootassignment.repository.UserRepository;
 import com.study.springbootassignment.util.UserPrincipal;
 import jakarta.transaction.Transactional;
@@ -23,7 +24,7 @@ import java.util.Set;
 @Transactional
 public class UserDetailService implements UserDetailsService {
     private final UserRepository userRepository;
-    private final CustomAccessDeniedHandler customAccessDeniedHandler;
+    private final RoleFeaturePermissionRepository roleFeaturePermissionRepository;
     @Transactional
     @Override
     public UserDetails loadUserByUsername(String email) {
@@ -33,11 +34,15 @@ public class UserDetailService implements UserDetailsService {
 
             Set<GrantedAuthority> authorities = new HashSet<>();
             user.getUserRoles().forEach(userRole -> {
-                userRole.getRole().getFeatures().forEach(feature -> {
-                    feature.getPermissions().forEach(permission -> {
-                        String authority = permission.getFunctionName().toUpperCase() + "_" + feature.getTitle().toUpperCase();
-                        authorities.add(new SimpleGrantedAuthority(authority));
-                    });
+//                userRole.getRole().getFeatures().forEach(feature -> {
+//                    feature.getPermissions().forEach(permission -> {
+//                        String authority = permission.getFunctionName().toUpperCase() + "_" + feature.getTitle().toUpperCase();
+//                        authorities.add(new SimpleGrantedAuthority(authority));
+//                    });
+//                });
+                userRole.getRole().getRoleFeaturePermissions().forEach(rfp -> {
+                    String authority = rfp.getPermission().getFunctionName().toUpperCase() + "_" + rfp.getFeature().getTitle().toUpperCase();
+                    authorities.add(new SimpleGrantedAuthority(authority));
                 });
             });
             if (user.getAdmin()) {
