@@ -19,25 +19,25 @@ public class PermissionController {
 
     private final PermissionService permissionService;
 
-    @PreAuthorize("hasAnyAuthority('VIEW_PERMISSIONS')")
+    @PreAuthorize("hasAnyAuthority('ROLE_ADMIN')")
     @GetMapping
     public List<PermissionDto> getPermissions() {
         return permissionService.findAll().stream().map(PermissionMapper::toDto).toList();
     }
 
-    @PreAuthorize("hasAnyAuthority('VIEW_PERMISSIONS')")
+    @PreAuthorize("hasAnyAuthority('ROLE_ADMIN')")
     @GetMapping("/{id}")
     public PermissionDto getPermission(@PathVariable Long id) {
         return  PermissionMapper.toDto(permissionService.findById(id));
     }
 
-    @PreAuthorize("hasAnyAuthority('CREATE_PERMISSIONS')")
+    @PreAuthorize("hasAnyAuthority('ROLE_ADMIN')")
     @PostMapping
     public PermissionDto save(@Valid @RequestBody CreatePermission request) {
         return PermissionMapper.toDto(permissionService.save(request.toEntity()));
     }
 
-    @PreAuthorize("hasAnyAuthority('UPDATE_PERMISSIONS')")
+    @PreAuthorize("hasAnyAuthority('ROLE_ADMIN')")
     @PutMapping("/{id}") // 👈 use PUT for full update
     public PermissionDto update(
             @PathVariable Long id,

@@ -10,6 +10,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 
@@ -23,7 +24,7 @@ import java.util.concurrent.ExecutionException;
 public class TransactionController {
     private final TransactionService transactionService;
 
-    //    @PreAuthorize("hasAnyAuthority('CREATE_TRANSFER')")
+    @PreAuthorize("hasAnyAuthority('CREATE_TRANSFER')")
     @PostMapping("transfer")
     public ResponseEntity<TransactionResponse> transfer(@Valid @RequestBody CreateTransfer transfer) {
         try {
@@ -34,7 +35,7 @@ public class TransactionController {
         }
     }
 
-    //    @PreAuthorize("hasAnyAuthority('CREATE_DEPOSIT')")
+    @PreAuthorize("hasAnyAuthority('CREATE_DEPOSIT')")
     @PostMapping("deposit")
     public ResponseEntity<TransactionResponse> deposit(@Valid @RequestBody CreateDeposit deposit) {
         try {
@@ -45,7 +46,7 @@ public class TransactionController {
         }
     }
 
-    //    @PreAuthorize("hasAnyAuthority('CREATE_WITHDRAW')")
+    @PreAuthorize("hasAnyAuthority('CREATE_WITHDRAW')")
     @PostMapping("/withdraw")
     public ResponseEntity<TransactionResponse> withdraw(@Valid @RequestBody CreateWithdraw request) {
         try {
@@ -56,6 +57,7 @@ public class TransactionController {
         }
     }
 
+    @PreAuthorize("hasAnyAuthority('VIEW_HISTORY')")
     @GetMapping("list")
     public ResponseEntity<Page<TransactionResponse>> list(
             @RequestParam Map<String, String> params,

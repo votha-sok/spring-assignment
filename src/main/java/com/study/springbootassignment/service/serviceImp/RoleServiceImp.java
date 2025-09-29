@@ -7,6 +7,7 @@ import com.study.springbootassignment.dto.role.CreateRoleFeature;
 import com.study.springbootassignment.entity.*;
 import com.study.springbootassignment.repository.FeatureRepository;
 import com.study.springbootassignment.repository.PermissionRepository;
+import com.study.springbootassignment.repository.RoleFeaturePermissionRepository;
 import com.study.springbootassignment.repository.RoleRepository;
 import com.study.springbootassignment.service.RoleService;
 import jakarta.transaction.Transactional;
@@ -29,7 +30,7 @@ public class RoleServiceImp implements RoleService {
     private final RoleRepository roleRepository;
     private final FeatureRepository featureRepository;
     private final PermissionRepository permissionRepository;
-
+    private final RoleFeaturePermissionRepository roleFeaturePermissionRepository;
     @Override
     public RoleEntity findById(Long id) {
         return roleRepository.findById(id).orElseThrow(() -> new RuntimeException("Role Not Found"));
@@ -96,27 +97,53 @@ public class RoleServiceImp implements RoleService {
 
     @Transactional
     @Override
-    public void applyFeaturePermission(List<ApplyPermissionDto> requests) {
+    public void applyFeaturePermission(List<ApplyPermissionDto> requests,Long roleId) {
+//        for (ApplyPermissionDto request : requests) {
+//            log.info("request: {}", request);
+//            FeatureEntity featureEntity = featureRepository.findById(request.getFeatureId())
+//                    .orElseThrow(() -> new RuntimeException("Feature not found: " + request.getFeatureId()));
+//
+//            // Clear old mappings
+//            featureEntity.getFeaturePermission().clear();
+//
+//            // Rebuild associations
+//            for (Long permissionId : request.getPermissionIds()) {
+//                log.info("permissionId: {}", permissionId);
+//                PermissionEntity permission = permissionRepository.findById(permissionId).orElseThrow(() -> new RuntimeException("Permission not found: " + permissionId));
+//                FeaturePermissionEntity fp = new FeaturePermissionEntity();
+//                fp.setFeature(featureEntity);
+//                fp.setPermission(permission);
+//                fp.setStatus(true);
+//                featureEntity.getFeaturePermission().add(fp);
+//            }
+//
+//            featureRepository.save(featureEntity);
+//        }
+
+        RoleEntity role = roleRepository.findById(roleId)
+                .orElseThrow(() -> new RuntimeException("Role not found: " + roleId));
+
         for (ApplyPermissionDto request : requests) {
             log.info("request: {}", request);
-            FeatureEntity featureEntity = featureRepository.findById(request.getFeatureId())
+
+            FeatureEntity feature = featureRepository.findById(request.getFeatureId())
                     .orElseThrow(() -> new RuntimeException("Feature not found: " + request.getFeatureId()));
 
-            // Clear old mappings
-            featureEntity.getFeaturePermission().clear();
+            // Clear old role-feature-permission mappings
+            roleFeaturePermissionRepository.deleteByRoleAndFeature(role, feature);
 
             // Rebuild associations
             for (Long permissionId : request.getPermissionIds()) {
-                log.info("permissionId: {}", permissionId);
-                PermissionEntity permission = permissionRepository.findById(permissionId).orElseThrow(() -> new RuntimeException("Permission not found: " + permissionId));
-                FeaturePermissionEntity fp = new FeaturePermissionEntity();
-                fp.setFeature(featureEntity);
-                fp.setPermission(permission);
-                fp.setStatus(true);
-                featureEntity.getFeaturePermission().add(fp);
-            }
+                PermissionEntity permission = permissionRepository.findById(permissionId)
+                        .orElseThrow(() -> new RuntimeException("Permission not found: " + permissionId));
 
-            featureRepository.save(featureEntity);
+                RoleFeaturePermissionEntity rfp = new RoleFeaturePermissionEntity();
+                rfp.setRole(role);
+                rfp.setFeature(feature);
+                rfp.setPermission(permission);
+
+                roleFeaturePermissionRepository.save(rfp);
+            }
         }
     }
 

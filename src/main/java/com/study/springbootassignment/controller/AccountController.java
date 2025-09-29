@@ -12,6 +12,7 @@ import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -26,6 +27,7 @@ public class AccountController {
     private final RandomStringHelper accountHelper;
     private final UserService userService;
 
+    @PreAuthorize("hasAnyAuthority('CREATE_ACCOUNT','ROLE_ADMIN')")
     @PostMapping
     public ResponseEntity<AccountResponse> createAccount(@Valid @RequestBody CreateAccount body) {
         AccountEntity account = body.toEntity();
@@ -36,6 +38,7 @@ public class AccountController {
         return ResponseEntity.ok(response);
     }
 
+    @PreAuthorize("hasAnyAuthority('UPDATE_ACCOUNT','ROLE_ADMIN')")
     @PutMapping("/{id}")
     public ResponseEntity<AccountResponse> updateAccount(@PathVariable Long id, @Valid @RequestBody CreateAccount body) {
         AccountEntity account = body.toEntity();
@@ -43,18 +46,20 @@ public class AccountController {
         AccountResponse response = AccountMapper.toDto(updateAccount);
         return ResponseEntity.ok(response);
     }
-
+    @PreAuthorize("hasAnyAuthority('VIEW_ACCOUNT','ROLE_ADMIN')")
     @GetMapping
     public ResponseEntity<List<AccountResponse>> getAllAccounts() {
         List<AccountResponse> list = accountService.findAll().stream().map(AccountMapper::toDto).toList();
         return ResponseEntity.ok(list);
     }
 
+    @PreAuthorize("hasAnyAuthority('VIEW_ACCOUNT','ROLE_ADMIN')")
     @GetMapping("/{id}")
     public ResponseEntity<AccountResponse> getAccountById(@PathVariable Long id) {
         return ResponseEntity.ok(AccountMapper.toDto(accountService.findById(id)));
     }
 
+    @PreAuthorize("hasAnyAuthority('VIEW_ACCOUNT','ROLE_ADMIN')")
     @GetMapping("/list")
     public ResponseEntity<Page<AccountResponse>> list(
             @RequestParam Map<String, String> params,

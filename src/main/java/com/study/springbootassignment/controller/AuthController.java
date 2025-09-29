@@ -50,8 +50,8 @@ public class AuthController {
     public UserDto register() {
         UserEntity u1 = new UserEntity();
         u1.setUserName("votha");
-        u1.setEmail("vothasok@example.com");
-        u1.setPassword(encoder.encode("Votha@123"));
+        u1.setEmail("votha7777@gmail.com");
+        u1.setPassword("Votha@123");
         u1.setPhone("015600022");
         u1.setAdmin(true);
         return UserMapper.toDto(userService.save(u1));

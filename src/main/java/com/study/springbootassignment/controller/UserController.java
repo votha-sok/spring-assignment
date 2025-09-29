@@ -2,8 +2,12 @@ package com.study.springbootassignment.controller;
 
 
 import com.study.springbootassignment.dto.user.*;
+import com.study.springbootassignment.entity.FeatureEntity;
+import com.study.springbootassignment.entity.RoleEntity;
 import com.study.springbootassignment.entity.UserEntity;
 import com.study.springbootassignment.jwt.UserContext;
+import com.study.springbootassignment.service.FeatureService;
+import com.study.springbootassignment.service.RoleService;
 import com.study.springbootassignment.service.UserService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -23,24 +27,34 @@ import java.util.stream.Collectors;
 public class UserController {
 
     private final UserService userService;
+    private final RoleService roleService;
+    private final FeatureService featureService;
 
 
-    @PreAuthorize("hasAnyAuthority('VIEW_USER')")
+    //    @PreAuthorize("hasAnyAuthority('VIEW_USER')")
     @GetMapping("/info")
     public ResponseEntity<UserInfoDto> info() {
-        UserInfoDto response = UserMapper.toInfoDto(userService.findById(UserContext.getUserId()));
+        UserEntity user = userService.findById(UserContext.getUserId());
+        UserInfoDto response;
+        if (user.getAdmin()) {
+            List<RoleEntity> roles = roleService.findAll();
+            List<FeatureEntity> features = featureService.findAll();
+            response = UserMapper.toAdminInfoDto(roles, features, user);
+        } else {
+            response = UserMapper.toInfoDto(userService.findById(UserContext.getUserId()));
+        }
         return ResponseEntity.ok(response);
     }
 
 
-    @PreAuthorize("hasAnyAuthority('CREATE_USER')")
+    @PreAuthorize("hasAnyAuthority('CREATE_USER','ROLE_ADMIN')")
     @PostMapping
     public ResponseEntity<UserDto> create(@Valid @RequestBody CreateUserDto request) {
         UserDto response = UserMapper.toDto(userService.save(request.toEntity()));
         return ResponseEntity.ok(response);
     }
 
-    @PreAuthorize("hasAnyAuthority('UPDATE_USER')")
+    @PreAuthorize("hasAnyAuthority('UPDATE_USER','ROLE_ADMIN')")
     @PutMapping("/{id}")
     public ResponseEntity<UserDetailDto> update(@PathVariable Long id, @Valid @RequestBody UpdateUserDto request) {
         UserDetailDto response = UserMapper.toDetailDto(userService.update(id, request.toEntity()));
@@ -48,21 +62,21 @@ public class UserController {
     }
 
 
-    @PreAuthorize("hasAnyAuthority('VIEW_USER')")
+    @PreAuthorize("hasAnyAuthority('VIEW_USER','ROLE_ADMIN')")
     @GetMapping
     public ResponseEntity<List<UserDto>> finAll() {
         List<UserDto> response = userService.findAll().stream().map(UserMapper::toDto).collect(Collectors.toList());
         return ResponseEntity.ok(response);
     }
 
-    @PreAuthorize("hasAnyAuthority('VIEW_USER')")
+    @PreAuthorize("hasAnyAuthority('VIEW_USER','ROLE_ADMIN')")
     @GetMapping("/{id}")
     public ResponseEntity<UserDetailDto> findById(@PathVariable Long id) {
         UserDetailDto response = UserMapper.toDetailDto(userService.findById(id));
         return ResponseEntity.ok(response);
     }
 
-//    @PreAuthorize("hasAnyAuthority('APPLY_ROLE_USER')")
+    @PreAuthorize("hasAnyAuthority('APPLY_USER','ROLE_ADMIN')")
     @PostMapping("/apply-role")
     public ResponseEntity<UserInfoDto> assignRole(@RequestBody @Valid ApplyUserRoleDto request) {
         UserEntity user = userService.applyUserRole(request);
@@ -70,7 +84,7 @@ public class UserController {
         return ResponseEntity.ok(response);
     }
 
-    @PreAuthorize("hasAnyAuthority('VIEW_USER')")
+    @PreAuthorize("hasAnyAuthority('VIEW_USER','ROLE_ADMIN')")
     @GetMapping("/list")
     HttpEntity<Page<UserDto>> list(
             @RequestParam Map<String, String> params,
