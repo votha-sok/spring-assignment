@@ -167,7 +167,7 @@ CREATE TABLE transactions (
 -- =============================================
 INSERT INTO users (id, admin, created_date, email, password, phone, status, user_name) VALUES
                                                                                            (1, true, '2025-09-12 10:43:42.61304', 'vothasok@example.com',
-                                                                                            '{bcrypt}$2a$10$QKGovw3qs3Nj2lWYC26hneT1r/Qcin2h.6I5w.uN0L/5/kKvHd8GC', '015600022', true, 'votha'),
+                                                                                            '{bcrypt}$2a$10$nOPBflA1XELYUjesj3nZzeN1o/oSXms7AYxO1GR6MFhk.N7RSAqxC', '015600022', true, 'votha'),
                                                                                            (3, false, '2025-09-29 13:24:13.392613', 'user@gmail.com',
                                                                                             '{bcrypt}$2a$10$OXlAJM9aFM.2evRf7lcdDeSTpIJDB0IaFaJsjfewMNTcLNY0JU9PC', '010800900', true, 'USER'),
                                                                                            (4, false, '2025-09-29 13:37:07.961021', 'admin@gmail.com',

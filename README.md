@@ -1,4 +1,4 @@
-``# Online Banking System - Project Report
+# Online Banking System - Project Report
 
 **Student Name:** Votha Sok  
 **Course:** Spring Boot Development  
@@ -126,4 +126,4 @@ entirely.
 - Deep understanding of JWT-based authentication
 - RESTful API design best practices
 - Database design with JPA/Hibernate
-- Production-ready application configuration``
+- Production-ready application configuration
