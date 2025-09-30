@@ -154,7 +154,12 @@
 								"header": [],
 								"body": {
 									"mode": "raw",
-									"raw": "{\r\n    \"email\": \"user@gmail.com\",\r\n    \"password\": \"user@123\"\r\n}"
+									"raw": "{\r\n    \"email\": \"user@gmail.com\",\r\n    \"password\": \"user@123\"\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
 								},
 								"url": {
 									"raw": "http://localhost:8080/auth/login",
@@ -181,7 +186,12 @@
 								"header": [],
 								"body": {
 									"mode": "raw",
-									"raw": "{\r\n    \"email\": \"admin@gmail.com\",\r\n    \"password\": \"admin@123\"\r\n}"
+									"raw": "{\r\n    \"email\": \"admin@gmail.com\",\r\n    \"password\": \"admin@123\"\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
 								},
 								"url": {
 									"raw": "http://localhost:8080/auth/login",
@@ -208,7 +218,12 @@
 								"header": [],
 								"body": {
 									"mode": "raw",
-									"raw": "{\r\n    \"email\": \"manager@gmail.com\",\r\n    \"password\": \"manager@123\"\r\n}"
+									"raw": "{\r\n    \"email\": \"manager@mail.com\",\r\n    \"password\": \"manager@123\"\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
 								},
 								"url": {
 									"raw": "http://localhost:8080/auth/login",
