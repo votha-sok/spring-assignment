@@ -2,7 +2,7 @@
 
 **Student Name:** Votha Sok  
 **Course:** Spring Boot Development  
-**Date:** [Submission Date]
+**Date:** [30/09/2025]
 
 ## 1. Project Overview
 
@@ -21,7 +21,7 @@ system with feature-level permissions.
 
 ## 3. Database Design Implementation
 
-The system uses five core entities:
+The system  core entities:
 
 - **User :** Stores staff credentials with role associations
 - **Role :** Defines user roles
