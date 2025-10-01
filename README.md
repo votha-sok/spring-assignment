@@ -49,7 +49,7 @@ The authentication system works as follows:
 | Method | Endpoint             | Description       | Access     |
 |--------|----------------------|-------------------|------------|
 | `POST` | `/api/auth/login`    | User login        | Public     |
-| `POST` | `/api/auth/register` | User registration | ADMIN only |
+| `POST` | `/api/auth/register` | User registration | Public     |
 
 ### User Management
 
