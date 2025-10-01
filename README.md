@@ -44,7 +44,7 @@ The authentication system works as follows:
 
 ## 5. API Endpoints Implementation
 
-### Authentication & User Management
+### Authentication
 
 | Method | Endpoint             | Description       | Access     |
 |--------|----------------------|-------------------|------------|
