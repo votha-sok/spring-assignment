@@ -1,4 +1,4 @@
-# Online Banking System - Project Report
+# Online Banking System
 
 **Student Name:** Votha Sok  
 **Course:** Spring Boot Development  
