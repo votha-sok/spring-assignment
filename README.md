@@ -21,7 +21,7 @@ system with feature-level permissions.
 
 ## 3. Database Design Implementation
 
-The system  core entities:
+The system core entities:
 
 - **User :** Stores staff credentials with role associations
 - **Role :** Defines user roles
@@ -127,3 +127,66 @@ entirely.
 - RESTful API design best practices
 - Database design with JPA/Hibernate
 - Production-ready application configuration
+
+## 11. Demo
+Setup data for role-permission access
+1. Create new database for demo db name `online_banking_demo`
+2. Register User for super-admin user Email:  `superuser@gmail.com` Password: `super@123`
+3. Run script insert features
+
+    ```sql
+    INSERT INTO features (id, created_date, menu_order, parent_id, router_link, status, title)
+    VALUES (1, '2025-09-12 17:05:11.518738', 10, NULL, NULL, true, 'Setting'),
+           (2, '2025-09-12 17:05:45.186496', 10, 1, '{setting/user}', true, 'User'),
+           (3, '2025-09-12 17:06:07.010608', 15, 1, '{setting/role}', true, 'Role'),
+           (4, '2025-09-19 15:18:26.417927', 15, 1, '{setting/account}', true, 'Account'),
+           (5, '2025-09-19 15:18:45.865647', 10, NULL, NULL, true, 'Transaction'),
+           (6, '2025-09-19 15:19:25.948104', 5, 5, '{transaction/transfer}', true, 'Transfer'),
+           (7, '2025-09-19 15:19:39.467409', 10, 5, '{transaction/deposit}', true, 'Deposit'),
+           (8, '2025-09-19 15:19:54.265739', 15, 5, '{transaction/withdraw}', true, 'Withdraw'),
+           (9, '2025-09-20 10:48:05.216222', 20, 5, '{transaction/history}', true, 'History');
+    ```
+4. Run script insert permissions
+
+   ```sql
+   INSERT INTO permissions (id, created_date, function_name, function_order, status)
+   VALUES (1, '2025-09-12 17:06:50.211713', 'Create', 1, true),
+          (2, '2025-09-12 17:06:57.504835', 'View', 2, true),
+          (3, '2025-09-12 17:07:05.587372', 'Update', 3, true),
+          (4, '2025-09-12 17:07:13.971475', 'Delete', 4, true),
+          (5, '2025-09-12 17:07:13.971475', 'Apply', 5, true);
+   ```
+5. Create Users
+6. Create Roles
+7. Apply role feature
+8. Apply user role
+9. Run script insert feature permission
+
+   ```sql
+   INSERT INTO feature_permissions (id, status, feature_id, permission_id)
+   VALUES (1, true, 1, 2),
+          (2, true, 1, 1),
+          (3, true, 1, 4),
+          (4, true, 1, 3),
+          (5, true, 1, 5),
+          (6, true, 2, 1),
+          (7, true, 2, 2),
+          (8, true, 2, 3),
+          (9, true, 2, 4),
+          (10, true, 2, 5),
+          (11, true, 3, 1),
+          (12, true, 3, 2),
+          (13, true, 3, 3),
+          (14, true, 3, 4),
+          (17, true, 4, 2),
+          (18, true, 4, 1),
+          (19, true, 4, 4),
+          (20, true, 4, 3),
+          (21, true, 6, 1),
+          (22, true, 7, 1),
+          (23, true, 8, 1),
+          (24, true, 9, 2),
+          (25, true, 3, 5);
+   ```
+10. Process Transaction `Transfer`, `Deposit`, `Withdraw`
+11. Process bulk `Transfer`, `Deposit`, `Withdraw` 200 request in a time 

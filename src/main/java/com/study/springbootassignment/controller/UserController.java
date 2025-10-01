@@ -62,7 +62,7 @@ public class UserController {
     }
 
 
-    @PreAuthorize("hasAnyAuthority('VIEW_USER','ROLE_ADMIN')")
+    @PreAuthorize("hasAnyAuthority('VIEW_USER','ROLE_ADMIN','VIEW_HISTORY')")
     @GetMapping
     public ResponseEntity<List<UserDto>> finAll() {
         List<UserDto> response = userService.findAll().stream().map(UserMapper::toDto).collect(Collectors.toList());
