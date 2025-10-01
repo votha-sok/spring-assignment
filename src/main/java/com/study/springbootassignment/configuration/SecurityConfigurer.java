@@ -28,27 +28,7 @@ public class SecurityConfigurer {
     private final JwtAuthenticationFilter jwtAuthenticationFilter;
     private final JwtAuthenticationEntryPoint jwtAuthenticationEntryPoint;
     private final CustomAccessDeniedHandler customAccessDeniedHandler;
-//    @Bean
-//    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
-//        http.csrf(AbstractHttpConfigurer::disable);
-//        http.authorizeHttpRequests(auth -> auth.anyRequest().permitAll());
-//        http.sessionManagement(session -> session
-//                .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
-//        );
-//        http.exceptionHandling(exception -> exception
-//                .authenticationEntryPoint(jwtAuthenticationEntryPoint)
-//                .accessDeniedHandler(customAccessDeniedHandler)
-//        );
-//        http.authorizeHttpRequests(auth -> auth
-//                .requestMatchers("/auth/**").permitAll()
-//                .requestMatchers("/admin/**").hasRole("ADMIN")
-//                .anyRequest().authenticated()
-//        );
-//
-//
-//        http.addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
-//        return http.build();
-//    }
+
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http.csrf(AbstractHttpConfigurer::disable);
@@ -59,13 +39,6 @@ public class SecurityConfigurer {
                 .authenticationEntryPoint(jwtAuthenticationEntryPoint)
                 .accessDeniedHandler(customAccessDeniedHandler)
         );
-
-//        http.authorizeHttpRequests(auth -> auth.anyRequest().permitAll()
-//                .requestMatchers("/auth/**").permitAll()
-//                .requestMatchers("/admin/**").hasRole("ADMIN")   // requires ROLE_ADMIN
-//                .anyRequest().authenticated()
-//        );
-
         http.addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
 
         return http.build();
